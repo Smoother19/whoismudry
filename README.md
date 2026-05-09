@@ -1,2 +1,2 @@
 # whoismudry
-An Among us like where you have to fine porf. Mudry among all the ISC students
+An Among us like game where you have to find prof. P. Mudry among all the ISC students
