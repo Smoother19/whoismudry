@@ -1,17 +1,17 @@
 {
-    "activeFile": "tilesets/Tileset HES-SO.tsx",
+    "activeFile": "maps/map.tmx",
     "expandedProjectPaths": [
+        "tilesets",
         ".",
-        "maps",
-        "tilesets"
+        "maps"
     ],
     "fileStates": {
         "maps/map.tmx": {
-            "scale": 2,
-            "selectedLayer": 1,
+            "scale": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 667.25,
-                "y": 1453.5
+                "x": 2042.5,
+                "y": 1495.5
             }
         },
         "tilesets/Tileset HES-SO.tsx": {
@@ -26,8 +26,8 @@
     ],
     "project": "sans titre.tiled-project",
     "recentFiles": [
-        "maps/map.tmx",
-        "tilesets/Tileset HES-SO.tsx"
+        "tilesets/Tileset HES-SO.tsx",
+        "maps/map.tmx"
     ],
     "tileset.lastUsedFormat": "tsx"
 }
