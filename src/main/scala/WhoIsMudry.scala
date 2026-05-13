@@ -52,7 +52,6 @@ class WhoIsMudry extends PortableApplication(Gamecfg.WINDOWLENGTH, Gamecfg.WINDO
     pixmap.dispose()
     texture
   }
-
   override def onGameLogicUpdate(): Unit = {
     super.onGameLogicUpdate()
 
