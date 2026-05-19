@@ -1,17 +1,17 @@
+package view
+
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
 import com.badlogic.gdx.maps.tiled.{TiledMap, TmxMapLoader}
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.utils.Disposable
-
-import com.badlogic.gdx.utils.Disposable
+import config.RenderConfig
 
 class GameAssets extends Disposable{
   val manager: AssetManager = new AssetManager()
 
-  private val MAP_PATH = Gamecfg.MAP_PATH
-  private val CREWMATE_TEXURE_PATH = Gamecfg.CREWMATE_TEXURE_PATH
+  private val MAP_PATH = RenderConfig.MapAssetPath
+  private val CREWMATE_TEXURE_PATH = RenderConfig.CrewmateTexturePath
 
   def loadAll(): Unit = {
     manager.setLoader(classOf[TiledMap], new TmxMapLoader(new InternalFileHandleResolver))
