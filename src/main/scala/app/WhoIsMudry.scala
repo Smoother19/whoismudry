@@ -1,6 +1,5 @@
 package app
 
-
 import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.Gdx
@@ -15,7 +14,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private val assets = new GameAssets()
   private val localPlayerId = PlayerId("local")
 
-  private var world: World = _
+  private var logicThread: GameLogicThread = _
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
@@ -31,35 +30,33 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     val startPos = Vec2(tileMap.pixelWidth / 2, tileMap.pixelHeight / 2)
     val initialPlayer = PlayerState(localPlayerId, startPos, Direction.Down, false)
 
-    world = new World(tileMap, Map(localPlayerId -> initialPlayer))
+    val initialWorld = new World(tileMap, Map(localPlayerId -> initialPlayer))
+
+    logicThread = new GameLogicThread(initialWorld, localPlayerId)
+    logicThread.start()
 
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
   }
 
-  override def onGameLogicUpdate(): Unit = {
-    val input = KeyboardInput.poll()
-    val dt = Gdx.graphics.getDeltaTime
-    val inputs = Map.apply((localPlayerId, input))
-    world.step(inputs, dt)
-  }
-
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    onGameLogicUpdate()
+    logicThread.currentInput = KeyboardInput.poll()
 
-    val localPlayer = world.players(localPlayerId)
+    val currentWorld = logicThread.world
+
+    val localPlayer = currentWorld.players(localPlayerId)
 
     val playerCenter = Vec2(localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f, localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f)
 
     g.clear()
     g.zoom(0.25f)
-    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, world.tileMap.pixelWidth, world.tileMap.pixelHeight)
+    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
     levelRenderer.render(g.getCamera)
 
     val dt = Gdx.graphics.getDeltaTime
-    world.players.values.foreach { state =>
+    currentWorld.players.values.foreach { state =>
       playerRenderer.render(g, state, dt)
     }
 
@@ -67,6 +64,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   }
 
   override def onDispose(): Unit = {
+    logicThread.running = false
+    logicThread.join()
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()

@@ -2,10 +2,10 @@ package model
 
 import config.GameplayConfig
 
-class World(val tileMap: TileMap, var players: Map[PlayerId, PlayerState]) {
+case class World(val tileMap: TileMap, val players: Map[PlayerId, PlayerState]) {
 
   // apdate the simulation by one step and check all the collision with all the players state (only on position level)
-  def step(inputs: Map[PlayerId, PlayerInput], deltaTime: Float): Unit = {
+  def step(inputs: Map[PlayerId, PlayerInput], deltaTime: Float): World = {
     var newPlayers = Map[PlayerId, PlayerState]()
 
     for ((id, state) <- players) {
@@ -14,7 +14,7 @@ class World(val tileMap: TileMap, var players: Map[PlayerId, PlayerState]) {
       newPlayers = newPlayers + (id -> newState)
     }
 
-    players = newPlayers
+    World(tileMap, newPlayers)
   }
 
   private def updatePlayer(state: PlayerState, input: PlayerInput, dt: Float): PlayerState = {
