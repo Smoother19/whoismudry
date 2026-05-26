@@ -14,7 +14,6 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private val assets = new GameAssets()
   private val localPlayerId = PlayerId("local")
 
-  private var logicThread: GameLogicThread = _
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
@@ -27,13 +26,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     val tiledMap = assets.getMap()
     val tileMap = TiledMapLoader.fromTiledMap(tiledMap, RenderConfig.WallLayerName)
 
-    val startPos = Vec2(tileMap.pixelWidth / 2, tileMap.pixelHeight / 2)
-    val initialPlayer = PlayerState(localPlayerId, startPos, Direction.Down, false)
-
-    val initialWorld = new World(tileMap, Map(localPlayerId -> initialPlayer))
-
-    logicThread = new GameLogicThread(initialWorld, localPlayerId)
-    logicThread.start()
+    GameManager.start(tileMap, localPlayerId)
 
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
@@ -41,12 +34,10 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    logicThread.currentInput = KeyboardInput.poll()
-
-    val currentWorld = logicThread.world
+    GameManager.updateLocalInput(KeyboardInput.poll())
+    val currentWorld = GameManager.currentWorld
 
     val localPlayer = currentWorld.players(localPlayerId)
-
     val playerCenter = Vec2(localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f, localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f)
 
     g.clear()
@@ -64,8 +55,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   }
 
   override def onDispose(): Unit = {
-    logicThread.running = false
-    logicThread.join()
+    GameManager.stop()
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()

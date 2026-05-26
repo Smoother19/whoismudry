@@ -2,6 +2,6 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="separateProdTestSources" value="true" />
-    <profile name="sbt 1" modules="whoismudry,whoismudry.main,whoismudry.test" />
+    <profile name="sbt 1" modules="whoismudry,whoismudry.main,whoismudry.test,whoismudry.whoismudry-client,whoismudry.whoismudry-client.main,whoismudry.whoismudry-client.test,whoismudry.whoismudry-server,whoismudry.whoismudry-server.main,whoismudry.whoismudry-server.test,whoismudry.whoismudry-shared,whoismudry.whoismudry-shared.main,whoismudry.whoismudry-shared.test" />
   </component>
 </project>

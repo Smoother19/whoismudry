@@ -1,5 +1,29 @@
-scalaVersion := "2.13.18"
-name := "whoismudry"
-version := "0.1.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / version := "0.1.0-SNAPSHOT"
 
-libraryDependencies += "ch.hevs.gdx2d" % "gdx2d-desktop" % "1.2.1"
+val shared = (project in file("shared"))
+  .settings(
+    name := "whoismudry-shared",
+    libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+    Compile / PB.targets := Seq(
+      scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
+    )
+  )
+
+val client = (project in file("client")).dependsOn(shared).settings(
+    name := "whoismudry-client",
+    libraryDependencies += "ch.hevs.gdx2d" % "gdx2d-desktop" % "1.2.1",
+    Compile / unmanagedResourceDirectories += baseDirectory.value / ".." / "assets"
+  )
+
+val server = (project in file("server"))
+  .dependsOn(shared)
+  .settings(
+    name := "whoismudry-server"
+  )
+
+val root = (project in file("."))
+  .aggregate(shared, client, server)
+  .settings(
+    name := "whoismudry"
+  )
