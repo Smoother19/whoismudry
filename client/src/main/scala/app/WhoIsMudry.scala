@@ -17,6 +17,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
+  private var miniMapRenderer: MiniMapRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -31,6 +32,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
+    miniMapRenderer =  new MiniMapRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -52,6 +54,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     }
 
     visionMaskRenderer.renderAround(g, playerCenter)
+    miniMapRenderer.render(g, currentWorld, localPlayerId)
   }
 
   override def onDispose(): Unit = {
