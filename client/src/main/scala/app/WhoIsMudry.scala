@@ -1,6 +1,5 @@
 package app
 
-
 import ch.hevs.gdx2d.desktop.PortableApplication
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.Gdx
@@ -15,10 +14,10 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private val assets = new GameAssets()
   private val localPlayerId = PlayerId("local")
 
-  private var world: World = _
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
+  private var miniMapRenderer: MiniMapRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -28,45 +27,38 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     val tiledMap = assets.getMap()
     val tileMap = TiledMapLoader.fromTiledMap(tiledMap, RenderConfig.WallLayerName)
 
-    val startPos = Vec2(tileMap.pixelWidth / 2, tileMap.pixelHeight / 2)
-    val initialPlayer = PlayerState(localPlayerId, startPos, Direction.Down, false)
-
-    world = new World(tileMap, Map(localPlayerId -> initialPlayer))
+    GameManager.start(tileMap, localPlayerId)
 
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
-  }
-
-  override def onGameLogicUpdate(): Unit = {
-    val input = KeyboardInput.poll()
-    val dt = Gdx.graphics.getDeltaTime
-    val inputs = Map.apply((localPlayerId, input))
-    world.step(inputs, dt)
+    miniMapRenderer =  new MiniMapRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-    onGameLogicUpdate()
+    GameManager.updateLocalInput(KeyboardInput.poll())
+    val currentWorld = GameManager.currentWorld
 
-    val localPlayer = world.players(localPlayerId)
-
+    val localPlayer = currentWorld.players(localPlayerId)
     val playerCenter = Vec2(localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f, localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f)
 
     g.clear()
     g.zoom(0.25f)
-    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, world.tileMap.pixelWidth, world.tileMap.pixelHeight)
+    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
     levelRenderer.render(g.getCamera)
 
     val dt = Gdx.graphics.getDeltaTime
-    world.players.values.foreach { state =>
+    currentWorld.players.values.foreach { state =>
       playerRenderer.render(g, state, dt)
     }
 
     visionMaskRenderer.renderAround(g, playerCenter)
+    miniMapRenderer.render(g, currentWorld, localPlayerId)
   }
 
   override def onDispose(): Unit = {
+    GameManager.stop()
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()

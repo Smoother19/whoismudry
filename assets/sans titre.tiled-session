@@ -1,17 +1,17 @@
 {
     "activeFile": "maps/map.tmx",
     "expandedProjectPaths": [
-        "tilesets",
+        "maps",
         ".",
-        "maps"
+        "tilesets"
     ],
     "fileStates": {
         "maps/map.tmx": {
-            "scale": 1,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2042.5,
-                "y": 1495.5
+                "x": 1300.75,
+                "y": 1322.75
             }
         },
         "tilesets/Tileset HES-SO.tsx": {
