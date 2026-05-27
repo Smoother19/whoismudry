@@ -19,7 +19,8 @@ val client = (project in file("client")).dependsOn(shared).settings(
 val server = (project in file("server"))
   .dependsOn(shared)
   .settings(
-    name := "whoismudry-server"
+    name := "whoismudry-server",
+    libraryDependencies += "org.apache.pekko" %% "pekko-actor-typed" % "1.6.0"
   )
 
 val root = (project in file("."))
