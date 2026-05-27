@@ -1,13 +1,12 @@
-import whoismudry.proto.test.TestMessage
+import whoismudry.proto.game._
 
 object Playground extends App{
-  val original = TestMessage("test", 42)
+  val original = PlayerState("1", Some(Vec2(1f, 2f)), Direction.DIRECTION_UP, true)
 
   val bytes = original.toByteArray
-
   println(s"Length: ${bytes.length} bytes")
 
-  val decoded = TestMessage.parseFrom(bytes)
+  val decoded = PlayerState.parseFrom(bytes)
 
   println(original == decoded)
 }

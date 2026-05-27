@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package whoismudry.proto;
+
+message Vec2 {
+    float x = 1;
+    float y = 2;
+}
+
+enum Direction {
+    DIRECTION_UNSPECIFIED = 0;
+    DIRECTION_UP = 1;
+    DIRECTION_DOWN = 2;
+    DIRECTION_LEFT = 3;
+    DIRECTION_RIGHT = 4;
+}
+
+message PlayerState {
+    string id = 1;
+    Vec2 position = 2;
+    Direction facing = 3;
+    bool isMoving = 4;
+}
+
+message JoinGame {
+    string username = 1;
+}
+
+message SendInput {
+    float dx = 1;
+    float dy = 2;
+}
+
+message Disconnect {
+}
+
+message Welcome{
+    string player_id = 1;
+}
+
+message PlayerLeft {
+    string player_id = 1;
+}
+
+message WorldSnapshot{
+    repeated PlayerState players = 1;
+}
+
+
+message ClientToServer{
+    oneof payload{
+        JoinGame join_game = 1;
+        SendInput send_input = 2;
+        Disconnect disconnect = 3;
+    }
+}
+
+message ServerToClient{
+    oneof payload {
+        Welcome welcome = 1;
+        WorldSnapshot world_snapshot = 2;
+        PlayerLeft player_left = 3;
+    }
+}
