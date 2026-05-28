@@ -18,6 +18,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
   private var miniMapRenderer: MiniMapRenderer = _
+  private var votingPhaseRenderer: VotingPhaseRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -33,28 +34,53 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
     miniMapRenderer =  new MiniMapRenderer()
+    votingPhaseRenderer = new VotingPhaseRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
     GameManager.updateLocalInput(KeyboardInput.poll())
     val currentWorld = GameManager.currentWorld
 
-    val localPlayer = currentWorld.players(localPlayerId)
-    val playerCenter = Vec2(localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f, localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f)
-
     g.clear()
-    g.zoom(0.25f)
-    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
-    levelRenderer.render(g.getCamera)
+    if (GameManager.isVotingPhase) {
 
-    val dt = Gdx.graphics.getDeltaTime
-    currentWorld.players.values.foreach { state =>
-      playerRenderer.render(g, state, dt)
+      // votes
+
+      g.zoom(1f)
+      g.moveCamera(
+        RenderConfig.WindowWidth / 2,
+        RenderConfig.WindowHeight / 2,
+        RenderConfig.WindowWidth,
+        RenderConfig.WindowHeight
+      )
+
+      votingPhaseRenderer.render(g, currentWorld, GameManager.remainingVotingTime)
+
+    } else {
+
+      // jeu
+      val localPlayer = currentWorld.players(localPlayerId)
+      val playerCenter = Vec2(
+        localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f,
+        localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f
+      )
+
+      g.zoom(0.25f)
+      g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
+
+      levelRenderer.render(g.getCamera)
+
+      val dt = Gdx.graphics.getDeltaTime
+      currentWorld.players.values.foreach { state =>
+        playerRenderer.render(g, state, dt)
+      }
+      val btnPos = GameManager.emergencyButtonPos
+      g.drawFilledCircle(btnPos.x, btnPos.y, 20f, com.badlogic.gdx.graphics.Color.RED)
+
+      visionMaskRenderer.renderAround(g, playerCenter)
+      miniMapRenderer.render(g, currentWorld, localPlayerId)
     }
-
-    visionMaskRenderer.renderAround(g, playerCenter)
-    miniMapRenderer.render(g, currentWorld, localPlayerId)
   }
 
   override def onDispose(): Unit = {
@@ -62,6 +88,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()
+    votingPhaseRenderer.dispose()
     super.onDispose()
   }
 }

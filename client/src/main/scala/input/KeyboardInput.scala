@@ -15,6 +15,8 @@ object KeyboardInput {
     if (Gdx.input.isKeyPressed(Keys.W)) dy += 1.0f
     if (Gdx.input.isKeyPressed(Keys.S)) dy -= 1.0f
 
-    PlayerInput(dx, dy)
+    val interact = Gdx.input.isKeyJustPressed(Keys.E)
+
+    PlayerInput(dx, dy, interact)
   }
 }
