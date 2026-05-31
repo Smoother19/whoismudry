@@ -19,6 +19,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var visionMaskRenderer: VisionMaskRenderer = _
   private var miniMapRenderer: MiniMapRenderer = _
   private var votingPhaseRenderer: VotingPhaseRenderer = _
+  private var cardSwipeRenderer: CardSwipeRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -35,6 +36,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     visionMaskRenderer = new VisionMaskRenderer()
     miniMapRenderer =  new MiniMapRenderer()
     votingPhaseRenderer = new VotingPhaseRenderer()
+    cardSwipeRenderer = new CardSwipeRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -43,43 +45,54 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
 
     g.clear()
 
-    if (GameManager.isVotingPhase) {
+    val localPlayer = currentWorld.players(localPlayerId)
+    val playerCenter = Vec2(
+      localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f,
+      localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f
+    )
 
-      // votes
+    g.zoom(0.25f)
+    g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
-      g.zoom(1f)
-      g.moveCamera(
-        RenderConfig.WindowWidth / 2,
-        RenderConfig.WindowHeight / 2,
-        RenderConfig.WindowWidth,
-        RenderConfig.WindowHeight
-      )
+    levelRenderer.render(g.getCamera)
 
-      votingPhaseRenderer.render(g, currentWorld, GameManager.remainingVotingTime)
+    val dt = Gdx.graphics.getDeltaTime
+    currentWorld.players.values.foreach { state =>
+      playerRenderer.render(g, state, dt)
+    }
 
-    } else {
+    val taskPos = GameManager.cardTaskPos
+    g.drawFilledCircle(taskPos.x, taskPos.y, 20f, com.badlogic.gdx.graphics.Color.BLUE)
+    g.drawString(taskPos.x - 10, taskPos.y + 30, "ADMIN")
 
-      // jeu
-      val localPlayer = currentWorld.players(localPlayerId)
-      val playerCenter = Vec2(
-        localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f,
-        localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f
-      )
+    val btnPos = GameManager.emergencyButtonPos
+    g.drawFilledCircle(btnPos.x, btnPos.y, 20f, com.badlogic.gdx.graphics.Color.RED)
+    g.drawString(btnPos.x - 20, btnPos.y + 30, "EMERGENCY")
 
-      g.zoom(0.25f)
-      g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
-      levelRenderer.render(g.getCamera)
+    miniMapRenderer.render(g, currentWorld, localPlayerId)
 
-      val dt = Gdx.graphics.getDeltaTime
-      currentWorld.players.values.foreach { state =>
-        playerRenderer.render(g, state, dt)
-      }
-      val btnPos = GameManager.emergencyButtonPos
-      g.drawFilledCircle(btnPos.x, btnPos.y, 20f, com.badlogic.gdx.graphics.Color.RED)
+    GameManager.currentState match {
 
-      visionMaskRenderer.renderAround(g, playerCenter)
-      miniMapRenderer.render(g, currentWorld, localPlayerId)
+      case ClientState.Playing =>
+        visionMaskRenderer.renderAround(g, playerCenter)
+        cardSwipeRenderer.reset()
+
+      case ClientState.Voting(timeRemaining) =>
+        g.zoom(1f)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+
+        g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, RenderConfig.WindowHeight / 2f, RenderConfig.WindowWidth.toFloat, RenderConfig.WindowHeight.toFloat, 0f, new com.badlogic.gdx.graphics.Color(0, 0, 0, 0.7f))
+
+        votingPhaseRenderer.render(g, currentWorld, timeRemaining)
+
+      case ClientState.DoingTask(ClientState.AdminCard) =>
+        g.zoom(1f)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+
+        g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, RenderConfig.WindowHeight / 2f, RenderConfig.WindowWidth.toFloat, RenderConfig.WindowHeight.toFloat, 0f, new com.badlogic.gdx.graphics.Color(0, 0, 0, 0.7f))
+
+        cardSwipeRenderer.render(g)
     }
   }
 
