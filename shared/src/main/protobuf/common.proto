@@ -37,6 +37,7 @@ message Disconnect {
 
 message Welcome{
     string player_id = 1;
+    repeated TaskState tasks = 2;
 }
 
 message PlayerLeft {
@@ -45,4 +46,9 @@ message PlayerLeft {
 
 message WorldSnapshot{
     repeated PlayerState players = 1;
+}
+message TaskState {
+    string id = 1;
+    Vec2 position = 2;
+    string task_type = 3;
 }

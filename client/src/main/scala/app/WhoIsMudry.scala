@@ -56,6 +56,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
     levelRenderer.render(g.getCamera)
+    cardSwipeRenderer.renderMapButton(g.getCamera, app.GameManager.tasks)
 
     val dt = Gdx.graphics.getDeltaTime
     currentWorld.players.values.foreach { state =>

@@ -4,9 +4,10 @@ import app.GameManager
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
-import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics._
 import config.RenderConfig
-
+import model.Task
 class CardSwipeRenderer {
 
   private val startX = RenderConfig.WindowWidth / 2f - 250f
@@ -16,6 +17,37 @@ class CardSwipeRenderer {
   private var cardX = startX
   private var isDragging = false
   private var showSuccess = false
+  private val batch = new SpriteBatch()
+
+  private val buttonTexture = new Texture("tasksIcons/admincard.png")
+
+
+  private val buttonWidth = 50f
+  private val buttonHeight = 32f
+
+
+  def renderMapButton(camera: OrthographicCamera, tasks: Seq[Task]): Unit = {
+
+    batch.setProjectionMatrix(camera.combined)
+
+    batch.begin()
+
+    for (task <- tasks) {
+
+      if (task.taskType == "AdminCard") {
+
+        batch.draw(
+          buttonTexture,
+          task.position.x - (buttonWidth / 2),
+          task.position.y - (buttonHeight / 2),
+          buttonWidth,
+          buttonHeight
+        )
+      }
+    }
+
+    batch.end()
+  }
 
   def render(g: GdxGraphics): Unit = {
     g.drawFilledRectangle(
@@ -42,7 +74,7 @@ class CardSwipeRenderer {
     g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, trackY, 600f, 80f, 0f, Color.BLACK)
 
     val mouseX = Gdx.input.getX().toFloat
-    val mouseY = (RenderConfig.WindowHeight - Gdx.input.getY()).toFloat // Dans libGDX, l'axe Y de la souris est inversé
+    val mouseY = (RenderConfig.WindowHeight - Gdx.input.getY()).toFloat
 
     if (Gdx.input.isTouched && !showSuccess) {
       if (math.abs(mouseX - cardX) < 60 && math.abs(mouseY - trackY) < 60) {

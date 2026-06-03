@@ -8,7 +8,6 @@ import whoismudry.proto.client.ClientToServer
 import whoismudry.proto.common.{Welcome => WelcomeMsg}
 import whoismudry.proto.server.ServerToClient
 import network.command._
-
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 
@@ -35,8 +34,16 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
     message.payload match {
       case ClientToServer.Payload.JoinGame(join) =>
         gameActor ! Join(id, join.username)
-        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id)))
+
+        val serverTasks = Seq(
+          whoismudry.proto.common.TaskState("task_1", Some(whoismudry.proto.common.Vec2(1600f, 1800f)), "AdminCard"),
+          whoismudry.proto.common.TaskState("task_2", Some(whoismudry.proto.common.Vec2(400f, 300f)), "test")
+        )
+
+        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks
+        )))
         conn.send(welcome.toByteArray)
+
       case ClientToServer.Payload.SendInput(input) =>
         gameActor ! UpdateInput(id, input.dx, input.dy)
       case _ =>

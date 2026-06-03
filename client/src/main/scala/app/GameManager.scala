@@ -10,10 +10,15 @@ object GameManager {
   private var world: World = _
   private var localPlayerInput: PlayerInput = PlayerInput.none
 
+  var tasks: Seq[model.Task] = Seq.empty
+
   private var localPlayerId: PlayerId = _
   def setLocalId(id: PlayerId): Unit = { localPlayerId = id }
   def currentLocalId: PlayerId = localPlayerId
   private var client: GameClient = _
+
+  //val interactionRadius: Float = 50f
+  //val currentState: ClientState = Playing
 
   def start(tileMap: TileMap, username: String): Unit = {
     world = World(tileMap, Map.empty)
@@ -34,6 +39,10 @@ object GameManager {
   def updateLocalInput(input: PlayerInput): Unit = {
     localPlayerInput = input
     if (client != null) client.sendInput(input.dx, input.dy)
+  }
+
+  def setTasks(newTasks: Seq[model.Task]): Unit = {
+    tasks = newTasks
   }
 
   def currentWorld: World = world

@@ -25,9 +25,26 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
     val arr = new Array[Byte](bytes.remaining())
     bytes.get(arr)
     val msg = ServerToClient.parseFrom(arr)
+
     msg.payload match {
-      case ServerToClient.Payload.WorldSnapshot(snap) => GameManager.updateWorld(snap.players.map(PlayerStateMapper.fromProto))
-      case ServerToClient.Payload.Welcome(welcome) => GameManager.setLocalId(PlayerId(welcome.playerId))
+      case ServerToClient.Payload.WorldSnapshot(snap) =>
+        GameManager.updateWorld(snap.players.map(PlayerStateMapper.fromProto))
+
+      case ServerToClient.Payload.Welcome(welcome) =>
+        GameManager.setLocalId(PlayerId(welcome.playerId))
+
+        val receivedTasks = welcome.tasks.map { t =>
+          val posX = t.position.map(_.x).getOrElse(0f)
+          val posY = t.position.map(_.y).getOrElse(0f)
+          model.Task(t.id, model.Vec2(posX, posY), t.taskType)
+        }
+
+        GameManager.setTasks(receivedTasks)
+        println(s"Reçu ${receivedTasks.size} tâches du serveur !")
+        receivedTasks.foreach { task =>
+          println(task.taskType)
+        }
+
       case _ =>
     }
   }
