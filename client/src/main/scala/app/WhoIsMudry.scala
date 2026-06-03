@@ -12,7 +12,7 @@ import view._
 class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderConfig.WindowHeight) {
 
   private val assets = new GameAssets()
-  private val localPlayerId = PlayerId("local")
+  private val username = "smooth"
 
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
@@ -29,7 +29,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     val tiledMap = assets.getMap()
     val tileMap = TiledMapLoader.fromTiledMap(tiledMap, RenderConfig.WallLayerName)
 
-    GameManager.start(tileMap, localPlayerId)
+    GameManager.start(tileMap, username)
 
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())

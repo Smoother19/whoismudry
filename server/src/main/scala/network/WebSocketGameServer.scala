@@ -1,33 +1,31 @@
-package server
+package network
 
+import org.apache.pekko.actor.typed.{ActorRef, ActorSystem}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
+import whoismudry.proto.client.ClientToServer
+import whoismudry.proto.common.{Welcome => WelcomeMsg}
+import whoismudry.proto.server.ServerToClient
+import network.command._
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import whoismudry.proto.client.ClientToServer
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import whoismudry.proto.server.ServerToClient
-import whoismudry.proto.common.{Welcome => WelcomeMsg}
 
 
-class WebSocketGameServer(port: Int, gameActor: ActorRef[GameActor.Command]) extends WebSocketServer(new InetSocketAddress(port)) {
+class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSocketServer(new InetSocketAddress(port)) {
   private val connections = scala.collection.mutable.Map[WebSocket, String]()
+  private var nextId = 1
 
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit = {
-    val id =conn.getRemoteSocketAddress.toString
+    val id = "player-" + nextId
+    nextId = nextId + 1
     connections(conn) = id
-    gameActor ! GameActor.Join(id)
-    val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(id)))
-    conn.send(welcome.toByteArray)
-    println(s"Connection ${id} opened")
   }
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit = {
-    val id =conn.getRemoteSocketAddress.toString
-    connections.remove(conn).foreach(id => gameActor ! GameActor.Leave(id))
+    val id = conn.getRemoteSocketAddress.toString
+    connections.remove(conn).foreach(id => gameActor ! Leave(id))
     println(s"Connection ${id} closed")
   }
 
@@ -35,8 +33,12 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[GameActor.Command]) ext
     val id = connections(conn)
     val message = ClientToServer.parseFrom(bytes.array())
     message.payload match {
+      case ClientToServer.Payload.JoinGame(join) =>
+        gameActor ! Join(id, join.username)
+        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id)))
+        conn.send(welcome.toByteArray)
       case ClientToServer.Payload.SendInput(input) =>
-        gameActor ! GameActor.UpdateInput(id, input.dx, input.dy)
+        gameActor ! UpdateInput(id, input.dx, input.dy)
       case _ =>
     }
   }
@@ -52,15 +54,4 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[GameActor.Command]) ext
   override def onStart(): Unit = {
     println(s"Websocket Server on port ${port}")
   }
-}
-
-object ServerMain extends App {
-  var server: WebSocketGameServer = _
-
-  val gameActor: ActorSystem[GameActor.Command] =
-    ActorSystem(GameActor(bytes => server.broadcast(bytes)), "whoismudry-server")
-
-  server = new WebSocketGameServer(8080, gameActor)
-
-  server.start()
 }
