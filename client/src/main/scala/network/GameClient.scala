@@ -8,13 +8,16 @@ import whoismudry.proto.server.ServerToClient
 import whoismudry.proto.common.SendInput
 import app.GameManager
 import model.PlayerId
+import whoismudry.proto.common.JoinGame
 
 import java.net.URI
 import java.nio.ByteBuffer
 
-class GameClient(serverUri: URI) extends WebSocketClient(serverUri) {
+class GameClient(serverUri: URI, username: String) extends WebSocketClient(serverUri) {
 
   override def onOpen(handshake: ServerHandshake): Unit = {
+    val join = ClientToServer(ClientToServer.Payload.JoinGame(JoinGame(username = username)))
+    send(join.toByteArray)
     println("Connected to server")
   }
 

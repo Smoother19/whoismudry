@@ -15,10 +15,10 @@ object GameManager {
   def currentLocalId: PlayerId = localPlayerId
   private var client: GameClient = _
 
-  def start(tileMap: TileMap, localId: PlayerId): Unit = {
+  def start(tileMap: TileMap, username: String): Unit = {
     world = World(tileMap, Map.empty)
 
-    client = new GameClient(new URI("ws://localhost:8080"))
+    client = new GameClient(new URI("ws://localhost:8080"), username)
     client.connect()
   }
 

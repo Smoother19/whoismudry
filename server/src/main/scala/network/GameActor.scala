@@ -1,21 +1,19 @@
-package server
+package network
 
+import config.GameplayConfig
+import loader.TmxLoader
+import model.mapper.PlayerStateMapper
+import model._
 import org.apache.pekko.actor.typed.Behavior
 import org.apache.pekko.actor.typed.scaladsl.Behaviors
-import scala.concurrent.duration._
-import model.{PlayerId, PlayerInput, PlayerState, Direction, Vec2, World, TileMap}
-import whoismudry.proto.common.{WorldSnapshot, PlayerState => ProtoPlayerState, Vec2 => ProtoVec2, Direction => ProtoDirection}
+import whoismudry.proto.common.WorldSnapshot
 import whoismudry.proto.server.ServerToClient
-import model.mapper.PlayerStateMapper
-import loader.TmxLoader
-import config.GameplayConfig
+import network.command._
+
+import scala.concurrent.duration._
 
 object GameActor {
 
-  sealed trait Command
-  case class Join(playerId: String) extends Command
-  case class UpdateInput(playerId: String, dx: Float, dy: Float) extends Command
-  case class Leave(playerId: String) extends Command
   private case object Tick extends Command
 
   def apply(broadcast: Array[Byte] => Unit): Behavior[Command] =
@@ -31,10 +29,10 @@ object GameActor {
 
   private def active(world: World, inputs: Map[PlayerId, PlayerInput], broadcast: Array[Byte] => Unit ): Behavior[Command] = Behaviors.receiveMessage {
 
-    case Join(idStr) =>
+    case Join(idStr, username) =>
       val playerId = PlayerId(idStr)
       val startPos = Vec2(world.tileMap.pixelWidth / 2f, world.tileMap.pixelHeight / 2f)
-      val playerState = PlayerState(playerId, startPos, Direction.Down, false)
+      val playerState = PlayerState(playerId, username,  startPos, Direction.Down, false)
       val newWorld = world.copy(players = world.players + (playerId -> playerState))
       val newInputs = inputs + (playerId -> PlayerInput.none)
       active(newWorld, newInputs, broadcast)
@@ -43,7 +41,7 @@ object GameActor {
       val playerId = PlayerId(idStr)
       val playerInput = PlayerInput(dx, dy)
       val newInputs = inputs + (playerId -> playerInput)
-      println(s"input from $idStr : dx=$dx dy=$dy")
+      //println(s"input from $idStr : dx=$dx dy=$dy")
       active(world, newInputs, broadcast)
 
     case Leave(idStr) =>
