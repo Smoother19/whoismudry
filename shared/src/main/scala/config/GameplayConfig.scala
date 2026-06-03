@@ -8,4 +8,6 @@ object GameplayConfig {
   val PlayerHitbox: Hitbox = Hitbox(offsetX = 20f, offsetY = 0f, width = 24f, height = 32f)
   val VisionRadius: Float = 175f
   val TickDuration: Float = 1f / 60f
+  val WallLayerName: String = "Walls"
+  val MapAssetPath: String = "/maps/map.tmx"
 }
