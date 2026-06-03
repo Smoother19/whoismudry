@@ -7,7 +7,7 @@ import whoismudry.proto.common.{PlayerState => ProtoPlayerState}
 object PlayerStateMapper {
   def toProto(s: PlayerState): ProtoPlayerState =
     ProtoPlayerState(
-      s.id.value,
+      s.playerId.value,
       Some(Vec2Mapper.toProto(s.position)),
       DirectionMapper.toProto(s.facing),
       s.isMoving

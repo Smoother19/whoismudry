@@ -26,7 +26,7 @@ object GameManager {
   }
 
   def updateWorld(players: Seq[PlayerState]): Unit = {
-    val playerMap = players.map(p => p.id -> p).toMap
+    val playerMap = players.map(p => p.playerId -> p).toMap
     world = world.copy(players = playerMap)
   }
 

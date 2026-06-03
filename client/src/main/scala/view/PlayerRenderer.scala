@@ -12,9 +12,9 @@ class PlayerRenderer(texture: Texture) {
   private var stateTime: Map[PlayerId, Float] = Map.empty
 
   def render(g: GdxGraphics, state: PlayerState, deltaTime: Float): Unit = {
-    val prev = stateTime.getOrElse(state.id, 0f)
+    val prev = stateTime.getOrElse(state.playerId, 0f)
     val newTime = if (state.isMoving) prev + deltaTime else 0f
-    stateTime = stateTime + (state.id -> newTime)
+    stateTime = stateTime + (state.playerId -> newTime)
     var currentFrameIdx = 0
 
     if (state.isMoving) {
