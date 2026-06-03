@@ -39,8 +39,12 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     GameManager.updateLocalInput(KeyboardInput.poll())
     val currentWorld = GameManager.currentWorld
 
-    val localPlayer = currentWorld.players(localPlayerId)
-    val playerCenter = Vec2(localPlayer.position.x + RenderConfig.PlayerSpriteWidth / 2f, localPlayer.position.y + RenderConfig.PlayerSpriteHeight / 2f)
+    val localId = GameManager.currentLocalId
+    val playerCenter =
+      if (localId != null) currentWorld.players.get(localId) match {
+        case Some(p) => Vec2(p.position.x + RenderConfig.PlayerSpriteWidth / 2f, p.position.y + RenderConfig.PlayerSpriteHeight / 2f)
+        case None    => Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f)
+      } else Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f)
 
     g.clear()
     g.zoom(0.25f)
@@ -54,7 +58,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     }
 
     visionMaskRenderer.renderAround(g, playerCenter)
-    miniMapRenderer.render(g, currentWorld, localPlayerId)
+    miniMapRenderer.render(g, currentWorld, localId)
   }
 
   override def onDispose(): Unit = {
