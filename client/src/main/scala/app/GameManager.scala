@@ -1,47 +1,39 @@
 package app
 
 import model._
+import network.GameClient
+import java.net.URI
 
 object GameManager {
 
   private var world: World = _
   private var localPlayerInput: PlayerInput = PlayerInput.none
 
-
-  private var logicThread: Thread = _
-  private var logicRunnable: GameLogicRunnable = _
-
   private var localPlayerId: PlayerId = _
+  def setLocalId(id: PlayerId): Unit = { localPlayerId = id }
+  def currentLocalId: PlayerId = localPlayerId
+  private var client: GameClient = _
 
   def start(tileMap: TileMap, localId: PlayerId): Unit = {
-    val startPos = Vec2(tileMap.pixelWidth / 2, tileMap.pixelHeight / 2)
-    val initialPlayer = PlayerState(localId, startPos, Direction.Down, isMoving = false)
+    world = World(tileMap, Map.empty)
 
-    world = World(tileMap, Map(localId -> initialPlayer))
-    localPlayerId = localId
-
-    logicRunnable = new GameLogicRunnable()
-    logicThread = new Thread(logicRunnable, "game-logic")
-    logicThread.start()
+    client = new GameClient(new URI("ws://localhost:8080"))
+    client.connect()
   }
 
   def stop(): Unit = {
-    if (logicRunnable != null) {
-      logicRunnable.stop()
-    }
-    if (logicThread != null) {
-      logicThread.join()
-    }
+    if (client != null) client.close()
   }
 
-  def currentWorld: World = world
+  def updateWorld(players: Seq[PlayerState]): Unit = {
+    val playerMap = players.map(p => p.playerId -> p).toMap
+    world = world.copy(players = playerMap)
+  }
 
   def updateLocalInput(input: PlayerInput): Unit = {
     localPlayerInput = input
+    if (client != null) client.sendInput(input.dx, input.dy)
   }
 
-  def tick(deltaTime: Float): Unit = {
-    val inputs = Map(localPlayerId -> localPlayerInput)
-    world = world.step(inputs, deltaTime)
-  }
+  def currentWorld: World = world
 }

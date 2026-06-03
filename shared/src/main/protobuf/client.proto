@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package whoismudry.proto;
+
+import "common.proto";
+
+message ClientToServer{
+    oneof payload{
+        JoinGame join_game = 1;
+        SendInput send_input = 2;
+        Disconnect disconnect = 3;
+    }
+}

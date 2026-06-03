@@ -1,8 +1,8 @@
 {
     "activeFile": "maps/map.tmx",
     "expandedProjectPaths": [
-        "maps",
         ".",
+        "maps",
         "tilesets"
     ],
     "fileStates": {
@@ -10,7 +10,7 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1300.75,
+                "x": 1301,
                 "y": 1322.75
             }
         },

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package whoismudry.proto;
+
+import "common.proto";
+
+message ServerToClient{
+    oneof payload {
+        Welcome welcome = 1;
+        WorldSnapshot world_snapshot = 2;
+        PlayerLeft player_left = 3;
+    }
+}

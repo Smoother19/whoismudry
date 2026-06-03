@@ -19,7 +19,7 @@ message PlayerState {
     string id = 1;
     Vec2 position = 2;
     Direction facing = 3;
-    bool isMoving = 4;
+    bool is_moving = 4;
 }
 
 message JoinGame {
@@ -44,21 +44,4 @@ message PlayerLeft {
 
 message WorldSnapshot{
     repeated PlayerState players = 1;
-}
-
-
-message ClientToServer{
-    oneof payload{
-        JoinGame join_game = 1;
-        SendInput send_input = 2;
-        Disconnect disconnect = 3;
-    }
-}
-
-message ServerToClient{
-    oneof payload {
-        Welcome welcome = 1;
-        WorldSnapshot world_snapshot = 2;
-        PlayerLeft player_left = 3;
-    }
 }
