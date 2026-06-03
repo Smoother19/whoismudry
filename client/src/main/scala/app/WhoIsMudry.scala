@@ -18,6 +18,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
   private var miniMapRenderer: MiniMapRenderer = _
+  private var votingPhaseRenderer: VotingPhaseRenderer = _
+  private var cardSwipeRenderer: CardSwipeRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -33,11 +35,15 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
     miniMapRenderer =  new MiniMapRenderer()
+    votingPhaseRenderer = new VotingPhaseRenderer()
+    cardSwipeRenderer = new CardSwipeRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
     GameManager.updateLocalInput(KeyboardInput.poll())
     val currentWorld = GameManager.currentWorld
+
+    g.clear()
 
     val localId = GameManager.currentLocalId
     val playerCenter =
@@ -46,7 +52,6 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         case None    => Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f)
       } else Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f)
 
-    g.clear()
     g.zoom(0.25f)
     g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
@@ -66,6 +71,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()
+    votingPhaseRenderer.dispose()
     super.onDispose()
   }
 }

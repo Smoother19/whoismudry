@@ -1,5 +1,6 @@
 package app
 
+import app.ClientState._
 import model._
 import network.GameClient
 import java.net.URI
