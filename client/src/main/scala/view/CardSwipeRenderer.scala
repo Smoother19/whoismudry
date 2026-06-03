@@ -57,7 +57,7 @@ class CardSwipeRenderer {
       if (isDragging) {
         if (cardX >= endX - 20f) {
           showSuccess = true
-          GameManager.completeTask()
+          //GameManager.completeTask()
         } else {
           cardX = startX
         }
@@ -67,7 +67,7 @@ class CardSwipeRenderer {
 
     if (Gdx.input.isKeyJustPressed(Keys.X)) {
       reset()
-      GameManager.cancelTask()
+      //GameManager.cancelTask()
     }
 
     val cardColor = if (showSuccess) Color.GREEN else Color.YELLOW
