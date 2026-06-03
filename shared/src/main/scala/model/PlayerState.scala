@@ -1,3 +1,3 @@
 package model
 
-case class PlayerState(id: PlayerId, position: Vec2, facing: Direction, isMoving: Boolean)
+case class PlayerState(position: Vec2, facing: Direction, isMoving: Boolean)
