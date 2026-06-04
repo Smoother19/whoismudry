@@ -18,7 +18,7 @@ object GameManager {
   def start(tileMap: TileMap, username: String): Unit = {
     world = World(tileMap, Map.empty)
 
-    client = new GameClient(new URI("ws://localhost:8080"), username)
+    client = new GameClient(new URI("ws://192.168.0.100:8080"), username)
     client.connect()
   }
 
