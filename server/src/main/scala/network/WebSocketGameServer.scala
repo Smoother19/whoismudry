@@ -1,6 +1,6 @@
 package network
 
-import org.apache.pekko.actor.typed.{ActorRef, ActorSystem}
+import org.apache.pekko.actor.typed.{ActorRef}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
@@ -40,8 +40,7 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
           whoismudry.proto.common.TaskState("task_2", Some(whoismudry.proto.common.Vec2(400f, 300f)), "test")
         )
 
-        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks
-        )))
+        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks)))
         conn.send(welcome.toByteArray)
 
       case ClientToServer.Payload.SendInput(input) =>

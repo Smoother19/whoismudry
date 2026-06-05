@@ -19,4 +19,20 @@ object KeyboardInput {
 
     PlayerInput(dx, dy, interact)
   }
+
+  def pollUserNameInput(current: String): String = {
+    var name = current
+
+    for (key <- Keys.A to Keys.Z) {
+      if (Gdx.input.isKeyJustPressed(key)) {
+        name = name + Keys.toString(key).toLowerCase
+      }
+    }
+
+    if (Gdx.input.isKeyJustPressed(Keys.BACKSPACE) && name.nonEmpty) {
+      name = name.substring(0, name.length - 1)
+    }
+
+    name
+  }
 }
