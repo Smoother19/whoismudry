@@ -8,7 +8,6 @@ import whoismudry.proto.client.ClientToServer
 import whoismudry.proto.common.{TaskType, Welcome => WelcomeMsg}
 import whoismudry.proto.server.ServerToClient
 import network.command._
-import whoismudry.proto.common.TaskType.TASK_TYPE_UNSPECIFIED
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -25,7 +24,7 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
   }
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit = {
-    val id = conn.getRemoteSocketAddress.toString
+    val id = connections(conn)
     connections.remove(conn).foreach(id => gameActor ! Leave(id))
     println(s"Connection ${id} closed")
   }

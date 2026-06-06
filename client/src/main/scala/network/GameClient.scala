@@ -57,7 +57,9 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
   }
 
   def sendInput(dx: Float, dy: Float): Unit = {
-    val message = ClientToServer(ClientToServer.Payload.SendInput(SendInput(dx, dy)))
-    send(message.toByteArray)
+    if (isOpen){
+      val message = ClientToServer(ClientToServer.Payload.SendInput(SendInput(dx, dy)))
+      send(message.toByteArray)
+    }
   }
 }
