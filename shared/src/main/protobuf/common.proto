@@ -50,5 +50,10 @@ message WorldSnapshot{
 message TaskState {
     string id = 1;
     Vec2 position = 2;
-    string task_type = 3;
+    TaskType task_type = 3;
+}
+
+enum TaskType {
+    TASK_TYPE_UNSPECIFIED = 0;
+    TASK_TYPE_ADMIN_CARD = 1;
 }

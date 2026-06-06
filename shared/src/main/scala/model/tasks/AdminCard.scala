@@ -1,3 +1,5 @@
+package model.tasks
+
 import model.TaskType
 
 case object AdminCard extends TaskType{

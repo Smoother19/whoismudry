@@ -9,6 +9,7 @@ import whoismudry.proto.common.SendInput
 import app.GameManager
 import model.PlayerId
 import whoismudry.proto.common.JoinGame
+import model.mapper.TaskMapper
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -33,17 +34,11 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
       case ServerToClient.Payload.Welcome(welcome) =>
         GameManager.setLocalId(PlayerId(welcome.playerId))
 
-        val receivedTasks = welcome.tasks.map { t =>
-          val posX = t.position.map(_.x).getOrElse(0f)
-          val posY = t.position.map(_.y).getOrElse(0f)
-          model.Task(t.id, model.Vec2(posX, posY), t.taskType)
-        }
-
+        val receivedTasks = welcome.tasks.flatMap(TaskMapper.fromProto)
         GameManager.setTasks(receivedTasks)
-        println(s"Reçu ${receivedTasks.size} tâches du serveur !")
-        receivedTasks.foreach { task =>
-          println(task.taskType)
-        }
+
+        println(s"Reçu ${receivedTasks.size} tâches du serveur")
+        receivedTasks.foreach(task => println(task.taskType))
 
       case _ =>
     }

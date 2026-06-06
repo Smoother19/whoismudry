@@ -10,4 +10,5 @@ object GameplayConfig {
   val TickDuration: Float = 1f / 60f
   val WallLayerName: String = "Walls"
   val MapAssetPath: String = "/maps/map.tmx"
+  val InteractionRadius = 50f
 }

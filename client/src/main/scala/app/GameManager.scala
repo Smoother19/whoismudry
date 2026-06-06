@@ -17,9 +17,6 @@ object GameManager {
   def currentLocalId: PlayerId = localPlayerId
   private var client: GameClient = _
 
-  //val interactionRadius: Float = 50f
-  //val currentState: ClientState = Playing
-
   def start(tileMap: TileMap, username: String): Unit = {
     world = World(tileMap, Map.empty)
 
@@ -46,4 +43,15 @@ object GameManager {
   }
 
   def currentWorld: World = world
+
+  def taskNearLocalPlayer(playerCenter: Vec2): Option[Task] = {
+    tasks.find { task =>
+      val dx = task.position.x - playerCenter.x
+      val dy = task.position.y - playerCenter.y
+      val distance = Math.sqrt(dx * dx + dy * dy)
+      distance < config.GameplayConfig.InteractionRadius
+    }
+  }
+
+  def currentLocalInput: PlayerInput = localPlayerInput
 }
