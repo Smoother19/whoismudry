@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics._
 import config.RenderConfig
 import model.Task
+import model.tasks.AdminCard
 class CardSwipeRenderer {
 
   private val startX = RenderConfig.WindowWidth / 2f - 250f
@@ -34,7 +35,7 @@ class CardSwipeRenderer {
 
     for (task <- tasks) {
 
-      if (task.taskType == "AdminCard") {
+      if (task.taskType == AdminCard) {
 
         batch.draw(
           buttonTexture,

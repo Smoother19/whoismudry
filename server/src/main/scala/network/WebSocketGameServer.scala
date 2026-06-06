@@ -1,13 +1,14 @@
 package network
 
-import org.apache.pekko.actor.typed.{ActorRef, ActorSystem}
+import org.apache.pekko.actor.typed.ActorRef
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import whoismudry.proto.client.ClientToServer
-import whoismudry.proto.common.{Welcome => WelcomeMsg}
+import whoismudry.proto.common.{TaskType, Welcome => WelcomeMsg}
 import whoismudry.proto.server.ServerToClient
 import network.command._
+
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 
@@ -23,7 +24,7 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
   }
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit = {
-    val id = conn.getRemoteSocketAddress.toString
+    val id = connections(conn)
     connections.remove(conn).foreach(id => gameActor ! Leave(id))
     println(s"Connection ${id} closed")
   }
@@ -36,12 +37,10 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
         gameActor ! Join(id, join.username)
 
         val serverTasks = Seq(
-          whoismudry.proto.common.TaskState("task_1", Some(whoismudry.proto.common.Vec2(1600f, 1800f)), "AdminCard"),
-          whoismudry.proto.common.TaskState("task_2", Some(whoismudry.proto.common.Vec2(400f, 300f)), "test")
+          whoismudry.proto.common.TaskState("task_1", Some(whoismudry.proto.common.Vec2(1600f, 1800f)), TaskType.TASK_TYPE_ADMIN_CARD)
         )
 
-        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks
-        )))
+        val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks)))
         conn.send(welcome.toByteArray)
 
       case ClientToServer.Payload.SendInput(input) =>
