@@ -92,6 +92,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         }
 
       case DoingTask(_) =>
+        g.zoom(1f)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
         GameManager.updateLocalInput(PlayerInput.none)
 
         cardSwipeRenderer.render(g)
