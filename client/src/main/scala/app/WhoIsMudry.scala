@@ -10,12 +10,10 @@ import loader.TiledMapLoader
 import model._
 import view._
 import app.ClientState._
-import input.KeyboardInput
 
 class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderConfig.WindowHeight) {
 
   private val assets = new GameAssets()
-  private val username = "smooth"
 
   private var levelRenderer: LevelRenderer = _
   private var playerRenderer: PlayerRenderer = _
