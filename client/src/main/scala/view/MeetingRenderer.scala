@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import config.RenderConfig
 import model.World
 
-class VotingPhaseRenderer {
+class MeetingRenderer {
 
   def render(g: GdxGraphics, world: World, remainingTime: Float): Unit = {
     g.drawFilledRectangle(

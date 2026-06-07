@@ -21,7 +21,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
   private var miniMapRenderer: MiniMapRenderer = _
-  private var votingPhaseRenderer: VotingPhaseRenderer = _
+  private var votingPhaseRenderer: MeetingRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
   private var localState: LocalStateManager = _
   private var currentTask: TaskGame = _
@@ -42,7 +42,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
     miniMapRenderer =  new MiniMapRenderer()
-    votingPhaseRenderer = new VotingPhaseRenderer()
+    votingPhaseRenderer = new MeetingRenderer()
     cardSwipeRenderer = new CardSwipeRenderer()
   }
 
