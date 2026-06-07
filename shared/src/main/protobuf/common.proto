@@ -77,3 +77,10 @@ message GamePhase {
     float remaining_time = 2;
     repeated Vote votes = 3;
 }
+
+message CallMeeting {
+}
+
+message SubmitVote {
+    string target_id = 1;
+}
