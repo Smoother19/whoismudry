@@ -2,19 +2,59 @@ package model
 
 import config.GameplayConfig
 
-case class World(val tileMap: TileMap, val players: Map[PlayerId, PlayerState]) {
+case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: GamePhase = GamePhase.Playing) {
 
-  // apdate the simulation by one step and check all the collision with all the players state (only on position level)
-  def step(inputs: Map[PlayerId, PlayerInput], deltaTime: Float): World = {
-    var newPlayers = Map[PlayerId, PlayerState]()
+  def step(inputs: Map[PlayerId, PlayerInput], deltaTime: Float): World = phase match {
 
-    for ((id, state) <- players) {
-      val input = inputs.getOrElse(id, PlayerInput.none)
-      val newState = updatePlayer(state, input, deltaTime)
-      newPlayers = newPlayers + (id -> newState)
+    case GamePhase.Playing =>
+      var newPlayers = Map[PlayerId, PlayerState]()
+      for ((id, state) <- players) {
+        val input = inputs.getOrElse(id, PlayerInput.none)
+        newPlayers = newPlayers + (id -> updatePlayer(state, input, deltaTime))
+      }
+      copy(players = newPlayers)
+
+    case GamePhase.Discussion(remaining) =>
+      val left = remaining - deltaTime
+      if (left <= 0f) copy(phase = GamePhase.Voting(GameplayConfig.VotingDuration, Map.empty))
+      else copy(phase = GamePhase.Discussion(left))
+
+    case GamePhase.Voting(remaining, votes) =>
+      val left = remaining - deltaTime
+      if (left <= 0f) {
+        val ejected = mostVoted(votes)
+        val survivors = ejected match {
+          case Some(id) => players - id
+          case None     => players
+        }
+        World(tileMap, survivors, GamePhase.Playing)
+      } else {
+        copy(phase = GamePhase.Voting(left, votes))
+      }
+  }
+
+  def startMeeting(): World = {
+    val gatherPoint = Vec2(tileMap.pixelWidth / 2f, tileMap.pixelHeight / 2f)
+    val gathered = players.map { case (id, state) =>
+      id -> state.copy(position = gatherPoint, isMoving = false)
     }
+    World(tileMap, gathered, GamePhase.Discussion(GameplayConfig.DiscussionDuration))
+  }
 
-    World(tileMap, newPlayers)
+  def registerVote(voter: PlayerId, target: PlayerId): World = phase match {
+    case GamePhase.Voting(remaining, votes) =>
+      copy(phase = GamePhase.Voting(remaining, votes + (voter -> target)))
+    case _ => this
+  }
+
+  private def mostVoted(votes: Map[PlayerId, PlayerId]): Option[PlayerId] = {
+    if (votes.isEmpty) None
+    else {
+      val tally = votes.values.groupBy(identity).map { case (id, occ) => (id, occ.size) }
+      val maxCount = tally.values.max
+      val top = tally.filter { case (_, count) => count == maxCount }.keys
+      if (top.size == 1) Some(top.head) else None
+    }
   }
 
   private def updatePlayer(state: PlayerState, input: PlayerInput, dt: Float): PlayerState = {
