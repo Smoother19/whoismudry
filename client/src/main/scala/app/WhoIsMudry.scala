@@ -10,6 +10,8 @@ import loader.TiledMapLoader
 import model._
 import view._
 import app.ClientState._
+import app.tasks.{TaskGame, TaskFactory}
+import input.{KeyboardInput, MouseInput}
 
 class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderConfig.WindowHeight) {
 
@@ -22,6 +24,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var votingPhaseRenderer: VotingPhaseRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
   private var localState: LocalStateManager = _
+  private var currentTask: TaskGame = _
+  private var currentTaskRenderer: TaskRenderer = _
 
   override def onInit(): Unit = {
     setTitle("WhoIsMudry - 2026 game")
@@ -83,21 +87,28 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         visionMaskRenderer.renderAround(g, playerCenter)
         miniMapRenderer.render(g, currentWorld, localId)
 
+        visionMaskRenderer.renderAround(g, playerCenter)
+        miniMapRenderer.render(g, currentWorld, localId)
+
         if (GameManager.currentLocalInput.interact && localId != null) {
           GameManager.taskNearLocalPlayer(playerCenter).foreach { task =>
+            val (logic, renderer) = TaskFactory.create(task.taskType)
+            currentTask = logic
+            currentTaskRenderer = renderer
             localState.openTask(task.taskType)
           }
         }
 
       case DoingTask(_) =>
         g.zoom(1f)
-        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2,
+          RenderConfig.WindowWidth, RenderConfig.WindowHeight)
         GameManager.updateLocalInput(PlayerInput.none)
 
-        cardSwipeRenderer.render(g)
+        currentTask.update(MouseInput.poll())
+        currentTaskRenderer.render(g, currentTask)
 
-        if (Gdx.input.isKeyJustPressed(Keys.X)) {
-          cardSwipeRenderer.reset()
+        if (currentTask.isComplete || Gdx.input.isKeyJustPressed(Keys.X)) {
           localState.closeTask()
         }
     }

@@ -6,8 +6,9 @@ import com.badlogic.gdx.graphics._
 import config.{CardSwipeConfig, RenderConfig}
 import model.Task
 import model.tasks.AdminCard
+import app.tasks.{TaskGame, CardSwipeTask}
 
-class CardSwipeRenderer {
+class CardSwipeRenderer extends TaskRenderer {
   private val batch = new SpriteBatch()
   private val buttonTexture = new Texture("tasksIcons/admincard.png")
   private val buttonWidth = 50f
@@ -27,18 +28,18 @@ class CardSwipeRenderer {
     batch.end()
   }
 
-  def render(g: GdxGraphics, progress: Float, success: Boolean): Unit = {
-    g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, RenderConfig.WindowHeight / 2f, 700f, 400f, 0f, Color.DARK_GRAY)
+  def render(g: GdxGraphics, task: TaskGame): Unit = task match {
+    case swipe: CardSwipeTask =>
+      g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, RenderConfig.WindowHeight / 2f, 700f, 400f, 0f, Color.DARK_GRAY)
+      g.drawString(RenderConfig.WindowWidth / 2f - 120, RenderConfig.WindowHeight / 2f + 150, "TASK : swipe card")
+      g.drawString(RenderConfig.WindowWidth / 2f - 150, RenderConfig.WindowHeight / 2f - 150, "Appuyez sur X pour quitter")
+      g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, CardSwipeConfig.TrackY, 600f, 80f, 0f, Color.BLACK)
 
-    g.drawString(RenderConfig.WindowWidth / 2f - 120, RenderConfig.WindowHeight / 2f + 150, "TASK : swipe card")
-    g.drawString(RenderConfig.WindowWidth / 2f - 150, RenderConfig.WindowHeight / 2f - 150, "Appuyez sur X pour quitter")
+      val cardX = CardSwipeConfig.TrackStartX + swipe.progress * (CardSwipeConfig.TrackEndX - CardSwipeConfig.TrackStartX)
+      val cardColor = if (swipe.isComplete) Color.GREEN else Color.YELLOW
+      g.drawFilledRectangle(cardX, CardSwipeConfig.TrackY, CardSwipeConfig.CardWidth, CardSwipeConfig.CardHeight, 0f, cardColor)
 
-    g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, CardSwipeConfig.TrackY, 600f, 80f, 0f, Color.BLACK)
-
-    val cardX = CardSwipeConfig.TrackStartX + progress * (CardSwipeConfig.TrackEndX - CardSwipeConfig.TrackStartX)
-    val cardColor = if (success) Color.GREEN else Color.YELLOW
-
-    g.drawFilledRectangle(cardX, CardSwipeConfig.TrackY, CardSwipeConfig.CardWidth, CardSwipeConfig.CardHeight, 0f, cardColor)
+    case _ =>
   }
 
   def dispose(): Unit = batch.dispose()
