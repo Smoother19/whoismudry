@@ -9,6 +9,7 @@ object GameManager {
 
   private var world: World = _
   private var localPlayerInput: PlayerInput = PlayerInput.none
+  private var phase: GamePhase = GamePhase.Playing
 
   var tasks: Seq[model.Task] = Seq.empty
 
@@ -54,4 +55,8 @@ object GameManager {
   }
 
   def currentLocalInput: PlayerInput = localPlayerInput
+
+  def updatePhase(newPhase: GamePhase): Unit = { phase = newPhase }
+
+  def currentPhase: GamePhase = phase
 }

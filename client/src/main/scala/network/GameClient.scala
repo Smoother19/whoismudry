@@ -9,7 +9,7 @@ import whoismudry.proto.common.SendInput
 import app.GameManager
 import model.PlayerId
 import whoismudry.proto.common.JoinGame
-import model.mapper.TaskMapper
+import model.mapper._
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -30,6 +30,7 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
     msg.payload match {
       case ServerToClient.Payload.WorldSnapshot(snap) =>
         GameManager.updateWorld(snap.players.map(PlayerStateMapper.fromProto))
+        snap.phase.foreach(p => GameManager.updatePhase(GamePhaseMapper.fromProto(p)))
 
       case ServerToClient.Payload.Welcome(welcome) =>
         GameManager.setLocalId(PlayerId(welcome.playerId))
