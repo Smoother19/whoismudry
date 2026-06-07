@@ -56,7 +56,7 @@ object GameActor {
       val protoPlayers = newWorld.players.values.map(PlayerStateMapper.toProto).toSeq
       val protoPhase = GamePhaseMapper.toProto(newWorld.phase)
 
-      val snapshot = ServerToClient(ServerToClient.Payload.WorldSnapshot(WorldSnapshot(protoPlayers)))
+      val snapshot = ServerToClient(ServerToClient.Payload.WorldSnapshot(WorldSnapshot(protoPlayers, Some(protoPhase))))
 
       broadcast(snapshot.toByteArray)
 
