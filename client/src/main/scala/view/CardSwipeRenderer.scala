@@ -1,115 +1,46 @@
 package view
 
-import app.GameManager
 import ch.hevs.gdx2d.lib.GdxGraphics
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics._
-import config.RenderConfig
+import config.{CardSwipeConfig, RenderConfig}
 import model.Task
 import model.tasks.AdminCard
-class CardSwipeRenderer {
+import app.tasks.{TaskGame, CardSwipeTask}
 
-  private val startX = RenderConfig.WindowWidth / 2f - 250f
-  private val endX = RenderConfig.WindowWidth / 2f + 250f
-  private val trackY = RenderConfig.WindowHeight / 2f
-
-  private var cardX = startX
-  private var isDragging = false
-  private var showSuccess = false
+class CardSwipeRenderer extends TaskRenderer {
   private val batch = new SpriteBatch()
-
   private val buttonTexture = new Texture("tasksIcons/admincard.png")
-
-
   private val buttonWidth = 50f
   private val buttonHeight = 32f
 
-
   def renderMapButton(camera: OrthographicCamera, tasks: Seq[Task]): Unit = {
-
     batch.setProjectionMatrix(camera.combined)
-
     batch.begin()
-
     for (task <- tasks) {
-
       if (task.taskType == AdminCard) {
-
-        batch.draw(
-          buttonTexture,
+        batch.draw(buttonTexture,
           task.position.x - (buttonWidth / 2),
           task.position.y - (buttonHeight / 2),
-          buttonWidth,
-          buttonHeight
-        )
+          buttonWidth, buttonHeight)
       }
     }
-
     batch.end()
   }
 
-  def render(g: GdxGraphics): Unit = {
-    g.drawFilledRectangle(
-      RenderConfig.WindowWidth / 2f,
-      RenderConfig.WindowHeight / 2f,
-      700f,
-      400f,
-      0f,
-      Color.DARK_GRAY
-    )
+  def render(g: GdxGraphics, task: TaskGame): Unit = task match {
+    case swipe: CardSwipeTask =>
+      g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, RenderConfig.WindowHeight / 2f, 700f, 400f, 0f, Color.DARK_GRAY)
+      g.drawString(RenderConfig.WindowWidth / 2f - 120, RenderConfig.WindowHeight / 2f + 150, "TASK : swipe card")
+      g.drawString(RenderConfig.WindowWidth / 2f - 150, RenderConfig.WindowHeight / 2f - 150, "Appuyez sur X pour quitter")
+      g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, CardSwipeConfig.TrackY, 600f, 80f, 0f, Color.BLACK)
 
-    g.drawString(
-      RenderConfig.WindowWidth / 2f - 120,
-      RenderConfig.WindowHeight / 2f + 150,
-      "TASK : swipe card"
-    )
+      val cardX = CardSwipeConfig.TrackStartX + swipe.progress * (CardSwipeConfig.TrackEndX - CardSwipeConfig.TrackStartX)
+      val cardColor = if (swipe.isComplete) Color.GREEN else Color.YELLOW
+      g.drawFilledRectangle(cardX, CardSwipeConfig.TrackY, CardSwipeConfig.CardWidth, CardSwipeConfig.CardHeight, 0f, cardColor)
 
-    g.drawString(
-      RenderConfig.WindowWidth / 2f - 150,
-      RenderConfig.WindowHeight / 2f - 150,
-      "Appuyez sur X pour quitter"
-    )
-
-    g.drawFilledRectangle(RenderConfig.WindowWidth / 2f, trackY, 600f, 80f, 0f, Color.BLACK)
-
-    val mouseX = Gdx.input.getX().toFloat
-    val mouseY = (RenderConfig.WindowHeight - Gdx.input.getY()).toFloat
-
-    if (Gdx.input.isTouched && !showSuccess) {
-      if (math.abs(mouseX - cardX) < 60 && math.abs(mouseY - trackY) < 60) {
-        isDragging = true
-      }
-
-      if (isDragging) {
-        cardX = math.min(endX, math.max(startX, mouseX))
-      }
-
-    } else {
-      if (isDragging) {
-        if (cardX >= endX - 20f) {
-          showSuccess = true
-          //GameManager.completeTask()
-        } else {
-          cardX = startX
-        }
-      }
-      isDragging = false
-    }
-
-    if (Gdx.input.isKeyJustPressed(Keys.X)) {
-      reset()
-      //GameManager.cancelTask()
-    }
-
-    val cardColor = if (showSuccess) Color.GREEN else Color.YELLOW
-    g.drawFilledRectangle(cardX, trackY, 100f, 140f, 0f, cardColor)
+    case _ =>
   }
 
-  def reset(): Unit = {
-    cardX = startX
-    isDragging = false
-    showSuccess = false
-  }
+  def dispose(): Unit = batch.dispose()
 }
