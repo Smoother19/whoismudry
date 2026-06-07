@@ -23,6 +23,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var meetingRenderer: MeetingRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
   private var emergencyButtonRenderer: EmergencyButtonRenderer = _
+  private var lobbyRenderer: LobbyRenderer = _
   private var localState: LocalStateManager = _
 
   private var currentTask: TaskGame = _
@@ -45,6 +46,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     meetingRenderer = new MeetingRenderer()
     cardSwipeRenderer = new CardSwipeRenderer()
     emergencyButtonRenderer = new EmergencyButtonRenderer()
+    lobbyRenderer = new LobbyRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -53,6 +55,11 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     GameManager.currentPhase match {
       case GamePhase.Discussion(_) | GamePhase.Voting(_, _) =>
         renderMeeting(g)
+
+      case GamePhase.Lobby(remaining) =>
+        g.zoom(1f)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+        lobbyRenderer.render(g, GameManager.currentWorld, remaining)
 
       case GamePhase.Playing =>
         renderLocalState(g)
