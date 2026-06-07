@@ -20,9 +20,8 @@ object GameActor {
     Behaviors.withTimers { timers =>
       timers.startTimerAtFixedRate(Tick, 30.milliseconds)
 
-      //val emptyWalls = Array.fill(100, 100)(false)
       val serverMap = TmxLoader.load(GameplayConfig.MapAssetPath, GameplayConfig.WallLayerName)
-      val initialWorld = World(serverMap, Map.empty)
+      val initialWorld = World(serverMap, Map.empty, GamePhase.Lobby(GameplayConfig.LobbyCountdown))
 
       active(initialWorld, Map.empty, broadcast)
     }
@@ -32,7 +31,7 @@ object GameActor {
     case Join(idStr, username) =>
       val playerId = PlayerId(idStr)
       val startPos = Vec2(world.tileMap.pixelWidth / 2f, world.tileMap.pixelHeight / 2f)
-      val playerState = PlayerState(playerId, username,  startPos, Direction.Down, false)
+      val playerState = PlayerState(playerId, username,  startPos, Direction.Down, isMoving = false)
       val newWorld = world.copy(players = world.players + (playerId -> playerState))
       val newInputs = inputs + (playerId -> PlayerInput.none)
       active(newWorld, newInputs, broadcast)

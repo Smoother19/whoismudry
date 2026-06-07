@@ -1,7 +1,8 @@
 package model.mapper
 
 import model.{GamePhase, PlayerId}
-import whoismudry.proto.common.{GamePhase => ProtoPhase, GamePhaseType, Vote => ProtoVote}
+import whoismudry.proto.common.GamePhaseType.GAME_PHASE_TYPE_LOBBY
+import whoismudry.proto.common.{GamePhaseType, GamePhase => ProtoPhase, Vote => ProtoVote}
 
 object GamePhaseMapper {
 
@@ -17,6 +18,9 @@ object GamePhaseMapper {
         ProtoVote(voter.value, target.value)
       }
       ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_VOTING, remaining, protoVotes)
+
+    case GamePhase.Lobby(remaining) =>
+      ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_LOBBY, remaining, Seq.empty)
   }
 
   def fromProto(p: ProtoPhase): GamePhase = p.phaseType match {
@@ -26,6 +30,9 @@ object GamePhaseMapper {
     case GamePhaseType.GAME_PHASE_TYPE_VOTING =>
       val votes = p.votes.map { v => PlayerId(v.voterId) -> PlayerId(v.targetId) }.toMap
       GamePhase.Voting(p.remainingTime, votes)
+
+    case GAME_PHASE_TYPE_LOBBY =>
+      GamePhase.Lobby(p.remainingTime)
 
     case _ =>
       GamePhase.Playing
