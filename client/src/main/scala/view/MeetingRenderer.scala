@@ -39,12 +39,12 @@ class MeetingRenderer {
     var yOffset = RenderConfig.WindowHeight - 150f
     var options = Seq.empty[VoteOption]
 
-    world.players.keys.foreach { playerId =>
+    world.players.foreach { case (playerId, state) =>
       val centerX = RenderConfig.WindowWidth / 2f
       g.drawRectangle(centerX, yOffset - 10f, rowWidth, rowHeight, 0f)
 
       val count = votes.values.count(_ == playerId)
-      g.drawString(centerX - 140f, yOffset, s"${playerId.toString}  ($count)")
+      g.drawString(centerX - 140f, yOffset, s"${state.username}  ($count)")
 
       if (canVote) {
         options = options :+ VoteOption(playerId, centerX, yOffset - 10f, rowWidth, rowHeight)

@@ -154,6 +154,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     assets.dispose()
     meetingRenderer.dispose()
     emergencyButtonRenderer.dispose()
+    playerRenderer.dispose()
     super.onDispose()
   }
 }
