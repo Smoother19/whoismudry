@@ -13,4 +13,5 @@ object GameplayConfig {
   val InteractionRadius = 50f
   val DiscussionDuration: Float = 15f
   val VotingDuration: Float = 30f
+  val MeetingCooldown: Float = 60f
 }

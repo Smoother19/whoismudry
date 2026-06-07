@@ -2,7 +2,7 @@ package model
 
 import config.GameplayConfig
 
-case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: GamePhase = GamePhase.Playing) {
+case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: GamePhase = GamePhase.Playing, meetingCooldown: Float = 0f) {
 
   def step(inputs: Map[PlayerId, PlayerInput], deltaTime: Float): World = phase match {
 
@@ -12,7 +12,8 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
         val input = inputs.getOrElse(id, PlayerInput.none)
         newPlayers = newPlayers + (id -> updatePlayer(state, input, deltaTime))
       }
-      copy(players = newPlayers)
+      val newCooldown = math.max(0f, meetingCooldown - deltaTime)
+      copy(players = newPlayers, meetingCooldown = newCooldown)
 
     case GamePhase.Discussion(remaining) =>
       val left = remaining - deltaTime
@@ -27,18 +28,20 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
           case Some(id) => players - id
           case None     => players
         }
-        World(tileMap, survivors, GamePhase.Playing)
+        World(tileMap, survivors, GamePhase.Playing, GameplayConfig.MeetingCooldown)
       } else {
         copy(phase = GamePhase.Voting(left, votes))
       }
   }
 
   def startMeeting(): World = {
-    val gatherPoint = Vec2(tileMap.pixelWidth / 2f, tileMap.pixelHeight / 2f)
-    val gathered = players.map { case (id, state) =>
-      id -> state.copy(position = gatherPoint, isMoving = false)
-    }
-    World(tileMap, gathered, GamePhase.Discussion(GameplayConfig.DiscussionDuration))
+    if (meetingCooldown <= 0f) {
+      val gatherPoint = Vec2(tileMap.pixelWidth / 2f, tileMap.pixelHeight / 2f)
+      val gathered = players.map { case (id, state) =>
+        id -> state.copy(position = gatherPoint, isMoving = false)
+      }
+      World(tileMap, gathered, GamePhase.Discussion(GameplayConfig.DiscussionDuration), GameplayConfig.MeetingCooldown)
+    } else this
   }
 
   def registerVote(voter: PlayerId, target: PlayerId): World = phase match {
