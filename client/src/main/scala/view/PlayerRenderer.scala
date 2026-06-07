@@ -5,11 +5,15 @@ import model.{Direction, PlayerId, PlayerState}
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.{BitmapFont, GlyphLayout}
 
 class PlayerRenderer(texture: Texture) {
 
   private val frames: Array[Array[TextureRegion]] = TextureRegion.split(texture, RenderConfig.PlayerSpriteWidth, RenderConfig.PlayerSpriteHeight)
   private var stateTime: Map[PlayerId, Float] = Map.empty
+
+  private val font = new BitmapFont()
+  private val layout = new GlyphLayout()
 
   def render(g: GdxGraphics, state: PlayerState, deltaTime: Float): Unit = {
     val prev = stateTime.getOrElse(state.playerId, 0f)
@@ -23,6 +27,12 @@ class PlayerRenderer(texture: Texture) {
 
     val frameToDraw = frames(rowIndexFor(state.facing))(currentFrameIdx)
     g.draw(frameToDraw, state.position.x, state.position.y)
+
+    layout.setText(font, state.username)
+    val textWidth = layout.width
+    val centerX = state.position.x + RenderConfig.PlayerSpriteWidth / 2f - textWidth / 2f
+    val textY = state.position.y + RenderConfig.PlayerSpriteHeight
+    g.drawString(centerX, textY, state.username)
   }
 
   private def rowIndexFor(dir: Direction): Int = dir match {
@@ -31,4 +41,6 @@ class PlayerRenderer(texture: Texture) {
     case Direction.Down  => 10
     case Direction.Right => 11
   }
+
+  def dispose(): Unit = font.dispose()
 }
