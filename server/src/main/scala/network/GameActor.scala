@@ -2,7 +2,7 @@ package network
 
 import config.GameplayConfig
 import loader.TmxLoader
-import model.mapper.PlayerStateMapper
+import model.mapper._
 import model._
 import org.apache.pekko.actor.typed.Behavior
 import org.apache.pekko.actor.typed.scaladsl.Behaviors
@@ -54,13 +54,20 @@ object GameActor {
       val newWorld = world.step(inputs, 0.030f)
 
       val protoPlayers = newWorld.players.values.map(PlayerStateMapper.toProto).toSeq
+      val protoPhase = GamePhaseMapper.toProto(newWorld.phase)
 
-      val snapshot = ServerToClient(
-        ServerToClient.Payload.WorldSnapshot(WorldSnapshot(protoPlayers))
-      )
+      val snapshot = ServerToClient(ServerToClient.Payload.WorldSnapshot(WorldSnapshot(protoPlayers)))
 
       broadcast(snapshot.toByteArray)
 
+      active(newWorld, inputs, broadcast)
+
+    case CallMeeting(_) =>
+      val newWorld = world.startMeeting()
+      active(newWorld, inputs, broadcast)
+
+    case SubmitVote(voterId, targetId) =>
+      val newWorld = world.registerVote(PlayerId(voterId), PlayerId(targetId))
       active(newWorld, inputs, broadcast)
   }
 

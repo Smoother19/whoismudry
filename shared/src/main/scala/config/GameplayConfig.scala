@@ -11,4 +11,6 @@ object GameplayConfig {
   val WallLayerName: String = "Walls"
   val MapAssetPath: String = "/maps/map.tmx"
   val InteractionRadius = 50f
+  val DiscussionDuration: Float = 15f
+  val VotingDuration: Float = 30f
 }

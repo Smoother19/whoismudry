@@ -9,5 +9,7 @@ message ClientToServer{
         JoinGame join_game = 1;
         SendInput send_input = 2;
         Disconnect disconnect = 3;
+        CallMeeting call_meeting = 4;
+        SubmitVote submit_vote = 5;
     }
 }
