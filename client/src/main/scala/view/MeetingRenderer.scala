@@ -3,11 +3,11 @@ package view
 import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.graphics.Color
 import config.RenderConfig
-import model.World
+import model.{GamePhase, PlayerId, World}
 
 class MeetingRenderer {
 
-  def render(g: GdxGraphics, world: World, remainingTime: Float): Unit = {
+  def render(g: GdxGraphics, world: World, phase: GamePhase): Seq[VoteOption] = {
     g.drawFilledRectangle(
       RenderConfig.WindowWidth / 2f,
       RenderConfig.WindowHeight / 2f,
@@ -23,34 +23,37 @@ class MeetingRenderer {
       "EMERGENCY MEETING"
     )
 
-    val secondsLeft = math.ceil(remainingTime).toInt
+    val (label, remaining, canVote, votes) = phase match {
+      case GamePhase.Discussion(t) => ("Discussion", t, false, Map.empty[PlayerId, PlayerId])
+      case GamePhase.Voting(t, v)  => ("Vote", t, true, v)
+      case GamePhase.Playing       => ("", 0f, false, Map.empty[PlayerId, PlayerId])
+    }
+
     g.drawString(
-      RenderConfig.WindowWidth / 2f - 50,
-      RenderConfig.WindowHeight - 90,
-      s"Temps restant : ${secondsLeft}s"
+      RenderConfig.WindowWidth / 2f - 50, RenderConfig.WindowHeight - 90f,
+      s"$label - ${math.ceil(remaining).toInt}s"
     )
 
-    var yOffset = RenderConfig.WindowHeight - 150
+    val rowWidth = 300f
+    val rowHeight = 40f
+    var yOffset = RenderConfig.WindowHeight - 150f
+    var options = Seq.empty[VoteOption]
 
     world.players.keys.foreach { playerId =>
-      g.drawRectangle(
-        RenderConfig.WindowWidth / 2f,
-        yOffset - 10,
-        300,
-        40,
-        0f
-      )
+      val centerX = RenderConfig.WindowWidth / 2f
+      g.drawRectangle(centerX, yOffset - 10f, rowWidth, rowHeight, 0f)
 
-      g.drawString(
-        RenderConfig.WindowWidth / 2f - 140,
-        yOffset,
-        s"Voter : ${playerId.toString}"
-      )
+      val count = votes.values.count(_ == playerId)
+      g.drawString(centerX - 140f, yOffset, s"${playerId.toString}  ($count)")
 
-      yOffset -= 60
+      if (canVote) {
+        options = options :+ VoteOption(playerId, centerX, yOffset - 10f, rowWidth, rowHeight)
+      }
+      yOffset -= 60f
     }
+
+    options
   }
 
-  def dispose(): Unit = {
-  }
+  def dispose(): Unit = {}
 }

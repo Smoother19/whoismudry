@@ -21,9 +21,10 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var playerRenderer: PlayerRenderer = _
   private var visionMaskRenderer: VisionMaskRenderer = _
   private var miniMapRenderer: MiniMapRenderer = _
-  private var votingPhaseRenderer: MeetingRenderer = _
+  private var meetingRenderer: MeetingRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
   private var localState: LocalStateManager = _
+
   private var currentTask: TaskGame = _
   private var currentTaskRenderer: TaskRenderer = _
 
@@ -35,21 +36,46 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     val tiledMap = assets.getMap()
     val tileMap = TiledMapLoader.fromTiledMap(tiledMap, RenderConfig.WallLayerName)
 
-    // GameManager.start(tileMap, username) (will be deleted to avoid network connexion on the start of the game to let the user choose his username)
     localState = new LocalStateManager(tileMap)
 
     levelRenderer = new LevelRenderer(tiledMap)
     playerRenderer = new PlayerRenderer(assets.getCrewmateTexture())
     visionMaskRenderer = new VisionMaskRenderer()
     miniMapRenderer =  new MiniMapRenderer()
-    votingPhaseRenderer = new MeetingRenderer()
+    meetingRenderer = new MeetingRenderer()
     cardSwipeRenderer = new CardSwipeRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
-
     g.clear()
 
+    GameManager.currentPhase match {
+      case GamePhase.Discussion(_) | GamePhase.Voting(_, _) =>
+        renderMeeting(g)
+
+      case GamePhase.Playing =>
+        renderLocalState(g)
+    }
+  }
+
+  private def renderMeeting(g: GdxGraphics): Unit = {
+    localState.closeTask()
+
+    g.zoom(1f)
+    g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2,
+      RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+
+    val options = meetingRenderer.render(g, GameManager.currentWorld, GameManager.currentPhase)
+
+    if (Gdx.input.justTouched()) {
+      val mouse = MouseInput.poll()
+      options.find(_.contains(mouse.x, mouse.y)).foreach { opt =>
+        GameManager.submitVote(opt.playerId)
+      }
+    }
+  }
+
+  private def renderLocalState(g: GdxGraphics): Unit = {
     localState.currentState match {
       case MainMenu(userName) =>
         val updated = KeyboardInput.pollUserNameInput(userName)
@@ -57,9 +83,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         if (Gdx.input.isKeyJustPressed(Keys.ENTER)) localState.confirmName()
 
         g.drawString(RenderConfig.WindowWidth / 2f - 150f, RenderConfig.WindowHeight / 2f + 50f, "whoIsMudry")
-
         g.drawString(RenderConfig.WindowWidth / 2f - 150f, RenderConfig.WindowHeight / 2f, "Pseudo : " + updated)
-
         g.drawString(RenderConfig.WindowWidth / 2f - 150f, RenderConfig.WindowHeight / 2f - 50, "Press Enter to join game")
 
       case FreeRoam =>
@@ -87,8 +111,9 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         visionMaskRenderer.renderAround(g, playerCenter)
         miniMapRenderer.render(g, currentWorld, localId)
 
-        visionMaskRenderer.renderAround(g, playerCenter)
-        miniMapRenderer.render(g, currentWorld, localId)
+        if (Gdx.input.isKeyJustPressed(Keys.M)) {
+          GameManager.callMeeting()
+        }
 
         if (GameManager.currentLocalInput.interact && localId != null) {
           GameManager.taskNearLocalPlayer(playerCenter).foreach { task =>
@@ -114,12 +139,13 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     }
   }
 
+
   override def onDispose(): Unit = {
     GameManager.stop()
     levelRenderer.dispose()
     visionMaskRenderer.dispose()
     assets.dispose()
-    votingPhaseRenderer.dispose()
+    meetingRenderer.dispose()
     super.onDispose()
   }
 }
