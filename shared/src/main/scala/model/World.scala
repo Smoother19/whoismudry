@@ -32,6 +32,15 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
       } else {
         copy(phase = GamePhase.Voting(left, votes))
       }
+
+    case GamePhase.Lobby(remaining) =>
+      if (players.size < GameplayConfig.MinPlayersToStart) {
+        copy(phase = GamePhase.Lobby(GameplayConfig.LobbyCountdown))
+      } else {
+        val left = remaining - deltaTime
+        if (left <= 0f) copy(phase = GamePhase.Playing)
+        else copy(phase = GamePhase.Lobby(left))
+      }
   }
 
   def startMeeting(): World = {

@@ -14,4 +14,6 @@ object GameplayConfig {
   val DiscussionDuration: Float = 15f
   val VotingDuration: Float = 30f
   val MeetingCooldown: Float = 60f
+  val MinPlayersToStart: Int = 2
+  val LobbyCountdown: Float = 10f
 }
