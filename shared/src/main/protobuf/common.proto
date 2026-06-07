@@ -46,7 +46,9 @@ message PlayerLeft {
 
 message WorldSnapshot{
     repeated PlayerState players = 1;
+    GamePhase phase = 2;
 }
+
 message TaskState {
     string id = 1;
     Vec2 position = 2;
@@ -56,4 +58,22 @@ message TaskState {
 enum TaskType {
     TASK_TYPE_UNSPECIFIED = 0;
     TASK_TYPE_ADMIN_CARD = 1;
+}
+
+enum GamePhaseType {
+    GAME_PHASE_TYPE_UNSPECIFIED = 0;
+    GAME_PHASE_TYPE_PLAYING = 1;
+    GAME_PHASE_TYPE_DISCUSSION = 2;
+    GAME_PHASE_TYPE_VOTING = 3;
+}
+
+message Vote {
+    string voter_id = 1;
+    string target_id = 2;
+}
+
+message GamePhase {
+    GamePhaseType phase_type = 1;
+    float remaining_time = 2;
+    repeated Vote votes = 3;
 }
