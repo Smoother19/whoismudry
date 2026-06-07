@@ -5,7 +5,6 @@ import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.Gdx
 import config.RenderConfig
-import input.KeyboardInput
 import loader.TiledMapLoader
 import model._
 import view._
@@ -23,6 +22,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var miniMapRenderer: MiniMapRenderer = _
   private var meetingRenderer: MeetingRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
+  private var emergencyButtonRenderer: EmergencyButtonRenderer = _
   private var localState: LocalStateManager = _
 
   private var currentTask: TaskGame = _
@@ -44,6 +44,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     miniMapRenderer =  new MiniMapRenderer()
     meetingRenderer = new MeetingRenderer()
     cardSwipeRenderer = new CardSwipeRenderer()
+    emergencyButtonRenderer = new EmergencyButtonRenderer()
   }
 
   override def onGraphicRender(g: GdxGraphics): Unit = {
@@ -101,7 +102,9 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         g.moveCamera(playerCenter.x.toInt, playerCenter.y.toInt, currentWorld.tileMap.pixelWidth, currentWorld.tileMap.pixelHeight)
 
         levelRenderer.render(g.getCamera)
+        val emergencyButtonPos = Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f + 20f)
         cardSwipeRenderer.renderMapButton(g.getCamera, GameManager.tasks)
+        emergencyButtonRenderer.render(g.getCamera, emergencyButtonPos)
 
         val dt = Gdx.graphics.getDeltaTime
         currentWorld.players.values.foreach { state =>
@@ -111,16 +114,20 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         visionMaskRenderer.renderAround(g, playerCenter)
         miniMapRenderer.render(g, currentWorld, localId)
 
-        if (Gdx.input.isKeyJustPressed(Keys.M)) {
-          GameManager.callMeeting()
-        }
-
         if (GameManager.currentLocalInput.interact && localId != null) {
-          GameManager.taskNearLocalPlayer(playerCenter).foreach { task =>
-            val (logic, renderer) = TaskFactory.create(task.taskType)
-            currentTask = logic
-            currentTaskRenderer = renderer
-            localState.openTask(task.taskType)
+          val dx = emergencyButtonPos.x - playerCenter.x
+          val dy = emergencyButtonPos.y - playerCenter.y
+          val distanceToButton = math.sqrt(dx * dx + dy * dy)
+
+          if (distanceToButton < config.GameplayConfig.InteractionRadius) {
+            GameManager.callMeeting()
+          } else {
+            GameManager.taskNearLocalPlayer(playerCenter).foreach { task =>
+              val (logic, renderer) = TaskFactory.create(task.taskType)
+              currentTask = logic
+              currentTaskRenderer = renderer
+              localState.openTask(task.taskType)
+            }
           }
         }
 
@@ -146,6 +153,7 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     visionMaskRenderer.dispose()
     assets.dispose()
     meetingRenderer.dispose()
+    emergencyButtonRenderer.dispose()
     super.onDispose()
   }
 }
