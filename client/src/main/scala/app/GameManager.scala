@@ -59,4 +59,8 @@ object GameManager {
   def updatePhase(newPhase: GamePhase): Unit = { phase = newPhase }
 
   def currentPhase: GamePhase = phase
+
+  def callMeeting(): Unit = { if (client != null) client.callMeeting() }
+
+  def submitVote(targetId: PlayerId): Unit = { if (client != null) client.submitVote(targetId.value) }
 }

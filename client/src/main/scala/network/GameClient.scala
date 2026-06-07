@@ -63,4 +63,20 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
       send(message.toByteArray)
     }
   }
+
+  def callMeeting(): Unit = {
+    if (isOpen) {
+      val msg = ClientToServer(ClientToServer.Payload.CallMeeting(
+        whoismudry.proto.common.CallMeeting()))
+      send(msg.toByteArray)
+    }
+  }
+
+  def submitVote(targetId: String): Unit = {
+    if (isOpen) {
+      val msg = ClientToServer(ClientToServer.Payload.SubmitVote(
+        whoismudry.proto.common.SubmitVote(targetId)))
+      send(msg.toByteArray)
+    }
+  }
 }
