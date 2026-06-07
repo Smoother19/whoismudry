@@ -61,6 +61,14 @@ object GameActor {
       broadcast(snapshot.toByteArray)
 
       active(newWorld, inputs, broadcast)
+
+    case CallMeeting(_) =>
+      val newWorld = world.startMeeting()
+      active(newWorld, inputs, broadcast)
+
+    case SubmitVote(voterId, targetId) =>
+      val newWorld = world.registerVote(PlayerId(voterId), PlayerId(targetId))
+      active(newWorld, inputs, broadcast)
   }
 
 }

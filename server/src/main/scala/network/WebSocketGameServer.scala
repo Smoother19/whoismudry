@@ -45,6 +45,13 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
 
       case ClientToServer.Payload.SendInput(input) =>
         gameActor ! UpdateInput(id, input.dx, input.dy)
+
+      case ClientToServer.Payload.CallMeeting(_) =>
+        gameActor ! CallMeeting(id)
+
+      case ClientToServer.Payload.SubmitVote(vote) =>
+        gameActor ! SubmitVote(id, vote.targetId)
+
       case _ =>
     }
   }
