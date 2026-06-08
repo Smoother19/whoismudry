@@ -16,7 +16,7 @@ object GameActor {
 
   private case object Tick extends Command
 
-  def apply(broadcast: Array[Byte] => Unit): Behavior[Command] =
+  def apply(broadcast: Array[Byte] => Unit, sendTo: (String, Array[Byte]) => Unit): Behavior[Command] =
     Behaviors.withTimers { timers =>
       timers.startTimerAtFixedRate(Tick, 30.milliseconds)
 
