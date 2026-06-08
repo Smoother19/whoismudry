@@ -88,8 +88,8 @@ message SubmitVote {
 
 enum RoleType {
     ROLE_TYPE_UNSPECIFIED = 0;
-    ROLE_TYPE_CREWMATE = 1;
-    ROLE_TYPE_IMPOSTOR = 2;
+    ROLE_TYPE_STUDENTS = 1;
+    ROLE_TYPE_MUDRY = 2;
 }
 
 message RoleAssignment {

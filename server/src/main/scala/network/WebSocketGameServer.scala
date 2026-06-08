@@ -67,4 +67,12 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
   override def onStart(): Unit = {
     println(s"Websocket Server on port ${port}")
   }
+
+  def sendTo(playerId: String, bytes: Array[Byte]): Unit = {
+    for ((conn, id) <- connections) {
+      if (id == playerId) {
+        conn.send(bytes)
+      }
+    }
+  }
 }

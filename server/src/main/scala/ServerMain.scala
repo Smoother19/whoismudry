@@ -6,7 +6,7 @@ object ServerMain extends App {
   var server: WebSocketGameServer = _
 
   val gameActor: ActorSystem[Command] =
-    ActorSystem(GameActor(bytes => server.broadcast(bytes)), "whoismudry-server")
+    ActorSystem(GameActor(bytes => server.broadcast(bytes), (id, bytes) => server.sendTo(id, bytes)), "whoismudry-server")
 
   server = new WebSocketGameServer(8080, gameActor)
 
