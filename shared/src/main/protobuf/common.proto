@@ -85,3 +85,13 @@ message CallMeeting {
 message SubmitVote {
     string target_id = 1;
 }
+
+enum RoleType {
+    ROLE_TYPE_UNSPECIFIED = 0;
+    ROLE_TYPE_CREWMATE = 1;
+    ROLE_TYPE_IMPOSTOR = 2;
+}
+
+message RoleAssignment {
+    RoleType role = 1;
+}

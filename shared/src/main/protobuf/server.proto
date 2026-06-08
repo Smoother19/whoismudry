@@ -9,5 +9,6 @@ message ServerToClient{
         Welcome welcome = 1;
         WorldSnapshot world_snapshot = 2;
         PlayerLeft player_left = 3;
+        RoleAssignment role_assignment = 4;
     }
 }
