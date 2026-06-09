@@ -47,6 +47,9 @@ object GameManager {
   def currentWorld: World = world
 
   def taskNearLocalPlayer(playerCenter: Vec2): Option[Task] = {
+    if (localRole == Role.Mudry) {
+      return None
+    }
     tasks.find { task =>
       val dx = task.position.x - playerCenter.x
       val dy = task.position.y - playerCenter.y
@@ -71,4 +74,28 @@ object GameManager {
   }
 
   def currentLocalRole: Role = localRole
+
+  def attemptKill(): Unit = {
+    println("attemptKill appelé")
+    if (world == null || currentLocalId == null) { println("world ou id null"); return }
+    val localPlayer = world.players(currentLocalId)
+
+    val killRadius = config.GameplayConfig.InteractionRadius
+    val target = world.players.values
+      .filter(p => p.playerId != currentLocalId && !p.isDead)
+      .map { p =>
+        val dx = p.position.x - localPlayer.position.x
+        val dy = p.position.y - localPlayer.position.y
+        (p, Math.sqrt(dx * dx + dy * dy))
+      }
+      .minByOption(_._2)
+
+    target match {
+      case Some((p, dist)) if dist <= killRadius =>
+        println(s"envoi kill vers ${p.playerId}")
+        if (client != null) client.sendKill(p.playerId.value)
+      case _ =>
+        println("aucune cible à portée")
+    }
+  }
 }

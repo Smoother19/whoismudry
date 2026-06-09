@@ -40,16 +40,18 @@ class MeetingRenderer {
     var options = Seq.empty[VoteOption]
 
     world.players.foreach { case (playerId, state) =>
-      val centerX = RenderConfig.WindowWidth / 2f
-      g.drawRectangle(centerX, yOffset - 10f, rowWidth, rowHeight, 0f)
+      if (!state.isDead){
+        val centerX = RenderConfig.WindowWidth / 2f
+        g.drawRectangle(centerX, yOffset - 10f, rowWidth, rowHeight, 0f)
 
-      val count = votes.values.count(_ == playerId)
-      g.drawString(centerX - 140f, yOffset, s"${state.username}  ($count)")
+        val count = votes.values.count(_ == playerId)
+        g.drawString(centerX - 140f, yOffset, s"${state.username}  ($count)")
 
-      if (canVote) {
-        options = options :+ VoteOption(playerId, centerX, yOffset - 10f, rowWidth, rowHeight)
+        if (canVote) {
+          options = options :+ VoteOption(playerId, centerX, yOffset - 10f, rowWidth, rowHeight)
+        }
+        yOffset -= 60f
       }
-      yOffset -= 60f
     }
 
     options
