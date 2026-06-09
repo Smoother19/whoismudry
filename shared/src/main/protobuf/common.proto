@@ -22,6 +22,7 @@ message PlayerState {
     bool is_moving = 4;
     string username = 5;
     bool is_dead = 6;
+    int64 last_kill_time = 7;
 }
 
 message JoinGame {
