@@ -56,8 +56,24 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
     }
   }
 
-  def startMeeting(): World = {
-    if (meetingCooldown <= 0f) {
+  def killPlayer(killerId: PlayerId, targetId: PlayerId, now: Long): World = {
+    if (phase != GamePhase.Playing) { println("kill refusé: pas en Playing"); return this }
+    (players.get(killerId), players.get(targetId)) match {
+      case (Some(killer), Some(target)) =>
+        println(s"killer role = ${killer.role}, dist OK?")
+        killer.role.executeKill(killer, target, now, GameplayConfig.KillCooldown, GameplayConfig.InteractionRadius) match {
+          case Some((deadTarget, updatedKiller)) =>
+            println("KILL réussi")
+            copy(players = players + (killerId -> updatedKiller) + (targetId -> deadTarget))
+          case None => println("executeKill a renvoyé None"); this
+        }
+      case _ => println("killer ou cible introuvable"); this
+    }
+  }
+
+  def startMeeting(callerId: PlayerId): World = {
+    val callerAlive = players.get(callerId).exists(!_.isDead)
+    if (callerAlive && meetingCooldown <= 0f) {
       val gatherPoint = Vec2(tileMap.pixelWidth / 2f, tileMap.pixelHeight / 2f)
       val gathered = players.map { case (id, state) =>
         id -> state.copy(position = gatherPoint, isMoving = false)
@@ -68,7 +84,11 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
 
   def registerVote(voter: PlayerId, target: PlayerId): World = phase match {
     case GamePhase.Voting(remaining, votes) =>
-      copy(phase = GamePhase.Voting(remaining, votes + (voter -> target)))
+      players.get(voter) match {
+        case Some(v) if !v.isDead =>
+          copy(phase = GamePhase.Voting(remaining, votes + (voter -> target)))
+        case _ => this
+      }
     case _ => this
   }
 
