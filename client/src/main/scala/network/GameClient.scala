@@ -28,6 +28,11 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
     val msg = ServerToClient.parseFrom(arr)
 
     msg.payload match {
+
+      case ServerToClient.Payload.RoleAssignment(assignment) =>
+        GameManager.setLocalRole(RoleMapper.fromProto(assignment.role))
+        println(s"gameclient role: ${assignment.role}")
+
       case ServerToClient.Payload.WorldSnapshot(snap) =>
         GameManager.updateWorld(snap.players.map(PlayerStateMapper.fromProto))
         snap.phase.foreach(p => GameManager.updatePhase(GamePhaseMapper.fromProto(p)))

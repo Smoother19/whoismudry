@@ -38,9 +38,22 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
         copy(phase = GamePhase.Lobby(GameplayConfig.LobbyCountdown))
       } else {
         val left = remaining - deltaTime
-        if (left <= 0f) copy(phase = GamePhase.Playing)
+        if (left <= 0f) assignRoles().copy(phase = GamePhase.Playing)
         else copy(phase = GamePhase.Lobby(left))
       }
+  }
+
+  private def assignRoles(): World = {
+    val ids = players.keys.toSeq
+    if (ids.isEmpty) this
+    else {
+      val mudryId = ids(scala.util.Random.nextInt(ids.size))
+      val newPlayers = players.map { case (id, state) =>
+        val role = if (id == mudryId) Role.Mudry else Role.Students
+        id -> state.copy(role = role)
+      }
+      copy(players = newPlayers)
+    }
   }
 
   def startMeeting(): World = {

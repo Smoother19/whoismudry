@@ -10,6 +10,7 @@ object GameManager {
   private var world: World = _
   private var localPlayerInput: PlayerInput = PlayerInput.none
   private var phase: GamePhase = GamePhase.Playing
+  private var localRole: Role = Role.Students
 
   var tasks: Seq[model.Task] = Seq.empty
 
@@ -63,4 +64,11 @@ object GameManager {
   def callMeeting(): Unit = { if (client != null) client.callMeeting() }
 
   def submitVote(targetId: PlayerId): Unit = { if (client != null) client.submitVote(targetId.value) }
+
+  def setLocalRole(r: Role): Unit = {
+    localRole = r
+    println("Role : " + r)
+  }
+
+  def currentLocalRole: Role = localRole
 }
