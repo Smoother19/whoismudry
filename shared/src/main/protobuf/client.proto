@@ -11,5 +11,6 @@ message ClientToServer{
         Disconnect disconnect = 3;
         CallMeeting call_meeting = 4;
         SubmitVote submit_vote = 5;
+        KillPlayer kill_player = 6;
     }
 }

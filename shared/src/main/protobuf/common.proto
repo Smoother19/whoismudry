@@ -21,6 +21,7 @@ message PlayerState {
     Direction facing = 3;
     bool is_moving = 4;
     string username = 5;
+    bool is_dead = 6;
 }
 
 message JoinGame {
@@ -94,4 +95,8 @@ enum RoleType {
 
 message RoleAssignment {
     RoleType role = 1;
+}
+
+message KillPlayer {
+    string target_id = 1;
 }
