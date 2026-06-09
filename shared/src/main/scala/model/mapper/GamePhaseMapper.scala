@@ -21,7 +21,13 @@ object GamePhaseMapper {
 
     case GamePhase.Lobby(remaining) =>
       ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_LOBBY, remaining, Seq.empty)
+
+    case GamePhase.GameOver(_) =>
+      ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_GAME_OVER, 0f, Seq.empty)
   }
+
+
+
 
   def fromProto(p: ProtoPhase): GamePhase = p.phaseType match {
     case GamePhaseType.GAME_PHASE_TYPE_DISCUSSION =>
@@ -33,6 +39,9 @@ object GamePhaseMapper {
 
     case GAME_PHASE_TYPE_LOBBY =>
       GamePhase.Lobby(p.remainingTime)
+
+    case GamePhaseType.GAME_PHASE_TYPE_GAME_OVER =>
+      GamePhase.GameOver("Fin de la partie !")
 
     case _ =>
       GamePhase.Playing
