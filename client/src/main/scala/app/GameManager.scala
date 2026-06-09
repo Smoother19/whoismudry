@@ -65,7 +65,10 @@ object GameManager {
 
   def submitVote(targetId: PlayerId): Unit = { if (client != null) client.submitVote(targetId.value) }
 
-  def setLocalRole(r: Role): Unit = { localRole = r }
+  def setLocalRole(r: Role): Unit = {
+    localRole = r
+    println("Role : " + r)
+  }
 
   def currentLocalRole: Role = localRole
 }
