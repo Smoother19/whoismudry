@@ -68,6 +68,7 @@ enum GamePhaseType {
     GAME_PHASE_TYPE_DISCUSSION = 2;
     GAME_PHASE_TYPE_VOTING = 3;
     GAME_PHASE_TYPE_LOBBY = 4;
+    GAME_PHASE_TYPE_GAME_OVER = 5;
 }
 
 message Vote {

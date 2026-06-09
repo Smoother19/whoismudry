@@ -28,10 +28,15 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
           case Some(id) => players - id
           case None     => players
         }
-        World(tileMap, survivors, GamePhase.Playing, GameplayConfig.MeetingCooldown)
+        if (survivors.size <= 1) {
+          World(tileMap, survivors, GamePhase.GameOver("Partie Terminée !"), GameplayConfig.MeetingCooldown)
+        } else {
+          World(tileMap, survivors, GamePhase.Playing, GameplayConfig.MeetingCooldown)
+        }
       } else {
         copy(phase = GamePhase.Voting(left, votes))
       }
+
 
     case GamePhase.Lobby(remaining) =>
       if (players.size < GameplayConfig.MinPlayersToStart) {
@@ -41,6 +46,9 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
         if (left <= 0f) assignRoles().copy(phase = GamePhase.Playing)
         else copy(phase = GamePhase.Lobby(left))
       }
+
+    case GamePhase.GameOver(_) =>
+      this
   }
 
   private def assignRoles(): World = {

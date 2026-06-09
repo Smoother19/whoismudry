@@ -63,6 +63,11 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
 
       case GamePhase.Playing =>
         renderLocalState(g)
+
+      case GamePhase.GameOver(winnerMsg) =>
+        g.zoom(1f)
+        g.moveCamera(RenderConfig.WindowWidth / 2, RenderConfig.WindowHeight / 2, RenderConfig.WindowWidth, RenderConfig.WindowHeight)
+        g.drawString(RenderConfig.WindowWidth / 2f - 100f, RenderConfig.WindowHeight / 2f, s"FIN DE PARTIE : $winnerMsg")
     }
   }
 
