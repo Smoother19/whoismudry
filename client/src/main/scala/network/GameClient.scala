@@ -10,6 +10,7 @@ import app.GameManager
 import model.PlayerId
 import whoismudry.proto.common.JoinGame
 import model.mapper._
+import whoismudry.proto.common.KillPlayer
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -83,5 +84,12 @@ class GameClient(serverUri: URI, username: String) extends WebSocketClient(serve
         whoismudry.proto.common.SubmitVote(targetId)))
       send(msg.toByteArray)
     }
+  }
+
+  def sendKill(targetId: String): Unit = {
+    val payload = ClientToServer.Payload.KillPlayer(KillPlayer(targetId))
+    val msg = ClientToServer(payload)
+
+    send(msg.toByteArray)
   }
 }
