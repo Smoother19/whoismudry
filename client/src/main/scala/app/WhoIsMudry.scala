@@ -22,6 +22,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
   private var miniMapRenderer: MiniMapRenderer = _
   private var meetingRenderer: MeetingRenderer = _
   private var cardSwipeRenderer: CardSwipeRenderer = _
+  private var priermudryRenderer: PrierMudryRenderer = _
+  private var questionRenderer: QuestionRenderer = _
   private var emergencyButtonRenderer: EmergencyButtonRenderer = _
   private var lobbyRenderer: LobbyRenderer = _
   private var localState: LocalStateManager = _
@@ -45,6 +47,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
     miniMapRenderer =  new MiniMapRenderer()
     meetingRenderer = new MeetingRenderer()
     cardSwipeRenderer = new CardSwipeRenderer()
+    priermudryRenderer = new PrierMudryRenderer()
+    questionRenderer = new QuestionRenderer()
     emergencyButtonRenderer = new EmergencyButtonRenderer()
     lobbyRenderer = new LobbyRenderer()
   }
@@ -116,6 +120,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         levelRenderer.render(g.getCamera)
         val emergencyButtonPos = Vec2(currentWorld.tileMap.pixelWidth / 2f, currentWorld.tileMap.pixelHeight / 2f + 20f)
         cardSwipeRenderer.renderMapButton(g.getCamera, GameManager.tasks)
+        priermudryRenderer.renderMapButton(g.getCamera, GameManager.tasks)
+        questionRenderer.renderMapButton(g.getCamera, GameManager.tasks)
         emergencyButtonRenderer.render(g.getCamera, emergencyButtonPos)
 
         val localIsDead = localId != null && currentWorld.players.get(localId).exists(_.isDead)

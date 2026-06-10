@@ -60,6 +60,8 @@ message TaskState {
 enum TaskType {
     TASK_TYPE_UNSPECIFIED = 0;
     TASK_TYPE_ADMIN_CARD = 1;
+    TASK_TYPE_PRIERMUDRY = 2;
+    TASK_TYPE_QUESTION = 3;
 }
 
 enum GamePhaseType {
