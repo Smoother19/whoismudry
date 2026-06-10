@@ -44,7 +44,12 @@ object GameActor {
 
     case Leave(idStr) =>
       val playerId = PlayerId(idStr)
-      val newWorld = world.copy(players = world.players - playerId)
+      val afterLeave = world.copy(players = world.players - playerId)
+      val newWorld =
+        if (afterLeave.players.isEmpty)
+          World(afterLeave.tileMap, Map.empty, GamePhase.Lobby(GameplayConfig.LobbyCountdown))
+        else
+          afterLeave
       val newInputs = inputs - playerId
       active(newWorld, newInputs, broadcast, sendTo)
 

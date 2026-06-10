@@ -17,4 +17,5 @@ object GameplayConfig {
   val MinPlayersToStart: Int = 2
   val LobbyCountdown: Float = 10f
   val KillCooldown: Long = 15000L
+  val GameOverDuration: Float = 10f
 }

@@ -44,8 +44,10 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
         else copy(phase = GamePhase.Lobby(left))
       }
 
-    case GamePhase.GameOver(_) =>
-      this
+    case GamePhase.GameOver(remaining, msg) =>
+      val left = remaining - deltaTime
+      if (left <= 0f) restart()
+      else copy(phase = GamePhase.GameOver(left, msg))
   }
 
   private def assignRoles(): World = {
@@ -67,9 +69,9 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
     val aliveStudents = alivePlayers.count(_.role == Role.Students)
 
     if (aliveMudry == 0) {
-      copy(phase = GamePhase.GameOver("Students won"))
+      copy(phase = GamePhase.GameOver(GameplayConfig.GameOverDuration, "Students won"))
     } else if (aliveMudry >= aliveStudents) {
-      copy(phase = GamePhase.GameOver("Mudry won"))
+      copy(phase = GamePhase.GameOver(GameplayConfig.GameOverDuration, "Mudry won"))
     } else {
       this
     }
@@ -119,6 +121,13 @@ case class World(tileMap: TileMap, players: Map[PlayerId, PlayerState], phase: G
       val top = tally.filter { case (_, count) => count == maxCount }.keys
       if (top.size == 1) Some(top.head) else None
     }
+  }
+
+  def restart(): World = {
+    val resetPlayers = players.map { case (id, state) =>
+      id -> state.copy(isDead = false, role = Role.Students, lastKillTime = 0L)
+    }
+    World(tileMap, resetPlayers, GamePhase.Lobby(GameplayConfig.LobbyCountdown))
   }
 
   private def updatePlayer(state: PlayerState, input: PlayerInput, dt: Float): PlayerState = {
