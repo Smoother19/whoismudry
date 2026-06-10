@@ -49,7 +49,6 @@ object GameActor {
       active(newWorld, newInputs, broadcast, sendTo)
 
     case KillPlayer(killerId, targetId) =>
-      println(s"KILL reçu: $killerId -> $targetId")
       val newWorld = world.killPlayer(PlayerId(killerId), PlayerId(targetId), System.currentTimeMillis())
       active(newWorld, inputs, broadcast, sendTo)
 

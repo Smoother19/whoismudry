@@ -76,8 +76,7 @@ object GameManager {
   def currentLocalRole: Role = localRole
 
   def attemptKill(): Unit = {
-    println("attemptKill appelé")
-    if (world == null || currentLocalId == null) { println("world ou id null"); return }
+    if (world == null || currentLocalId == null){}
     val localPlayer = world.players(currentLocalId)
 
     val killRadius = config.GameplayConfig.InteractionRadius
@@ -92,10 +91,10 @@ object GameManager {
 
     target match {
       case Some((p, dist)) if dist <= killRadius =>
-        println(s"envoi kill vers ${p.playerId}")
+        println(s"kill attempt on ${p.playerId}")
         if (client != null) client.sendKill(p.playerId.value)
       case _ =>
-        println("aucune cible à portée")
+        println("no target close enough")
     }
   }
 }
