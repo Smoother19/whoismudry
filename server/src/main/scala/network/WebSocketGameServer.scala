@@ -37,7 +37,9 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
         gameActor ! Join(id, join.username)
 
         val serverTasks = Seq(
-          whoismudry.proto.common.TaskState("task_1", Some(whoismudry.proto.common.Vec2(1600f, 1800f)), TaskType.TASK_TYPE_ADMIN_CARD)
+          whoismudry.proto.common.TaskState("task_1", Some(whoismudry.proto.common.Vec2(1600f, 1800f)), TaskType.TASK_TYPE_ADMIN_CARD),
+          whoismudry.proto.common.TaskState("task_2", Some(whoismudry.proto.common.Vec2(1600f, 1700f)), TaskType.TASK_TYPE_PRIERMUDRY),
+          whoismudry.proto.common.TaskState("task_3", Some(whoismudry.proto.common.Vec2(1600f, 1900f)), TaskType.TASK_TYPE_QUESTION)
         )
 
         val welcome = ServerToClient(ServerToClient.Payload.Welcome(WelcomeMsg(playerId = id, tasks = serverTasks)))
