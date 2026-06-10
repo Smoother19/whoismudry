@@ -11,7 +11,9 @@ object PlayerStateMapper {
       Some(Vec2Mapper.toProto(s.position)),
       DirectionMapper.toProto(s.facing),
       s.isMoving,
-      s.username
+      s.username,
+      s.isDead,
+      s.lastKillTime
     )
 
   def fromProto(p: ProtoPlayerState): PlayerState =
@@ -20,6 +22,8 @@ object PlayerStateMapper {
       p.username,
       p.position.map(Vec2Mapper.fromProto).getOrElse(Vec2(0f, 0f)),
       DirectionMapper.fromProto(p.facing),
-      p.isMoving
+      p.isMoving,
+      isDead = p.isDead,
+      lastKillTime = p.lastKillTime
     )
 }

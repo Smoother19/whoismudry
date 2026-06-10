@@ -54,6 +54,9 @@ class WebSocketGameServer(port: Int, gameActor: ActorRef[Command]) extends WebSo
       case ClientToServer.Payload.SubmitVote(vote) =>
         gameActor ! SubmitVote(id, vote.targetId)
 
+      case ClientToServer.Payload.KillPlayer(kp) =>
+        gameActor ! KillPlayer(id, kp.targetId)
+
       case _ =>
     }
   }

@@ -6,6 +6,9 @@ import ch.hevs.gdx2d.lib.GdxGraphics
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.{BitmapFont, GlyphLayout}
+import com.badlogic.gdx.graphics.Color
+import app.GameManager
+import model.Role
 
 class PlayerRenderer(texture: Texture) {
 
@@ -32,7 +35,21 @@ class PlayerRenderer(texture: Texture) {
     val textWidth = layout.width
     val centerX = state.position.x + RenderConfig.PlayerSpriteWidth / 2f - textWidth / 2f
     val textY = state.position.y + RenderConfig.PlayerSpriteHeight
+
+    val isLocalMudry =
+      state.playerId == GameManager.currentLocalId && GameManager.currentLocalRole == Role.Mudry
+
+    g.setColor(if (isLocalMudry) Color.RED else Color.WHITE)
     g.drawString(centerX, textY, state.username)
+    g.setColor(Color.WHITE)
+
+    if (state.isDead) {
+      g.setColor(new Color(1f, 1f, 1f, 0.1f))
+      g.draw(frameToDraw, state.position.x, state.position.y)
+      g.setColor(Color.WHITE)
+    } else {
+      g.draw(frameToDraw, state.position.x, state.position.y)
+    }
   }
 
   private def rowIndexFor(dir: Direction): Int = dir match {

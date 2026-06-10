@@ -16,4 +16,5 @@ object GameplayConfig {
   val MeetingCooldown: Float = 60f
   val MinPlayersToStart: Int = 2
   val LobbyCountdown: Float = 10f
+  val KillCooldown: Long = 15000L
 }
