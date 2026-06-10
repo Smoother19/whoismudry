@@ -22,8 +22,8 @@ object GamePhaseMapper {
     case GamePhase.Lobby(remaining) =>
       ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_LOBBY, remaining, Seq.empty)
 
-    case GamePhase.GameOver(_) =>
-      ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_GAME_OVER, 0f, Seq.empty)
+    case GamePhase.GameOver(remaining, msg) =>
+      ProtoPhase(GamePhaseType.GAME_PHASE_TYPE_GAME_OVER, remaining, Seq.empty)
   }
 
 
@@ -41,7 +41,7 @@ object GamePhaseMapper {
       GamePhase.Lobby(p.remainingTime)
 
     case GamePhaseType.GAME_PHASE_TYPE_GAME_OVER =>
-      GamePhase.GameOver("Fin de la partie !")
+      GamePhase.GameOver(p.remainingTime, "Fin de la partie !")
 
     case _ =>
       GamePhase.Playing

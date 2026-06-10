@@ -14,7 +14,7 @@ class QuestionTask extends TaskGame {
   private val questionBank = List(
     QuestionData("Quel est le sens de la vie ?", "42"),
     QuestionData("Combien font 7 x 8 ?", "56"),
-    QuestionData("Quel langage est utilise en PCO ?", "Scala"),
+    QuestionData("Quel langage est utilise en POO ?", "Scala"),
     QuestionData("Qui est le boss final de la HES-SO ?", "Mudry")
   )
 
