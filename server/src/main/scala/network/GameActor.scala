@@ -26,10 +26,7 @@ object GameActor {
       active(initialWorld, Map.empty, broadcast, sendTo)
     }
 
-  private def active(world: World,
-                     inputs: Map[PlayerId, PlayerInput],
-                     broadcast: Array[Byte] => Unit,
-                     sendTo: (String, Array[Byte]) => Unit): Behavior[Command] = Behaviors.receiveMessage {
+  private def active(world: World, inputs: Map[PlayerId, PlayerInput], broadcast: Array[Byte] => Unit, sendTo: (String, Array[Byte]) => Unit): Behavior[Command] = Behaviors.receiveMessage {
 
     case Join(idStr, username) =>
       val playerId = PlayerId(idStr)
@@ -50,6 +47,14 @@ object GameActor {
       val newWorld = world.copy(players = world.players - playerId)
       val newInputs = inputs - playerId
       active(newWorld, newInputs, broadcast, sendTo)
+
+    case KillPlayer(killerId, targetId) =>
+      val newWorld = world.killPlayer(PlayerId(killerId), PlayerId(targetId), System.currentTimeMillis())
+      active(newWorld, inputs, broadcast, sendTo)
+
+    case CallMeeting(callerId) =>
+      val newWorld = world.startMeeting(PlayerId(callerId))
+      active(newWorld, inputs, broadcast, sendTo)
 
     case Tick =>
       val newWorld = world.step(inputs, 0.030f)
@@ -73,8 +78,8 @@ object GameActor {
 
       active(newWorld, inputs, broadcast, sendTo)
 
-    case CallMeeting(_) =>
-      val newWorld = world.startMeeting()
+    case CallMeeting(callerId) =>
+      val newWorld = world.startMeeting(PlayerId(callerId))
       active(newWorld, inputs, broadcast, sendTo)
 
     case SubmitVote(voterId, targetId) =>

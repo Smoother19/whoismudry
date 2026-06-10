@@ -118,9 +118,13 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
         cardSwipeRenderer.renderMapButton(g.getCamera, GameManager.tasks)
         emergencyButtonRenderer.render(g.getCamera, emergencyButtonPos)
 
+        val localIsDead = localId != null && currentWorld.players.get(localId).exists(_.isDead)
+
         val dt = Gdx.graphics.getDeltaTime
         currentWorld.players.values.foreach { state =>
-          playerRenderer.render(g, state, dt)
+          if (localIsDead || !state.isDead) {
+            playerRenderer.render(g, state, dt)
+          }
         }
 
         visionMaskRenderer.renderAround(g, playerCenter)
@@ -133,6 +137,8 @@ class WhoIsMudry extends PortableApplication(RenderConfig.WindowWidth, RenderCon
 
           if (distanceToButton < config.GameplayConfig.InteractionRadius) {
             GameManager.callMeeting()
+          } else if (GameManager.currentLocalRole == Role.Mudry) {
+            GameManager.attemptKill()
           } else {
             GameManager.taskNearLocalPlayer(playerCenter).foreach { task =>
               val (logic, renderer) = TaskFactory.create(task.taskType)
