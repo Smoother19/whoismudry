@@ -29,12 +29,19 @@ object GameActor {
   private def active(world: World, inputs: Map[PlayerId, PlayerInput], broadcast: Array[Byte] => Unit, sendTo: (String, Array[Byte]) => Unit): Behavior[Command] = Behaviors.receiveMessage {
 
     case Join(idStr, username) =>
-      val playerId = PlayerId(idStr)
-      val startPos = Vec2(world.tileMap.pixelWidth / 2f, world.tileMap.pixelHeight / 2f)
-      val playerState = PlayerState(playerId, username, startPos, Direction.Down, isMoving = false)
-      val newWorld = world.copy(players = world.players + (playerId -> playerState))
-      val newInputs = inputs + (playerId -> PlayerInput.none)
-      active(newWorld, newInputs, broadcast, sendTo)
+      world.phase match {
+        case GamePhase.Lobby(_) =>
+          val playerId = PlayerId(idStr)
+          val startPos = Vec2(world.tileMap.pixelWidth / 2f, world.tileMap.pixelHeight / 2f)
+          val playerState = PlayerState(playerId, username, startPos, Direction.Down, isMoving = false)
+          val newWorld = world.copy(players = world.players + (playerId -> playerState))
+          val newInputs = inputs + (playerId -> PlayerInput.none)
+          active(newWorld, newInputs, broadcast, sendTo)
+
+        case _ =>
+          println(s"Connexion refused $username($idStr) : Game already started")
+          active(world, inputs, broadcast, sendTo)
+      }
 
     case UpdateInput(idStr, dx, dy) =>
       val playerId = PlayerId(idStr)
