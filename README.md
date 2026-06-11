@@ -158,10 +158,7 @@ La partie reprend ensuite, ou se termine si une condition de victoire est attein
 
 ## Vidéo de démonstration
 
-La vidéo de démonstration (1080p, 60 Hz, moins de 15 s) se trouve dans le dépôt : [`video/Video_Prog_WhoIsMudry.mp4`](./video/Video_Prog_WhoIsMudry.mp4).
-
-> [!TIP]
-> Pour qu'elle se lise directement dans le README sur GitHub, ouvrez le README dans l'éditeur web de GitHub et glissez-déposez le fichier vidéo dans le texte : GitHub génère alors un lecteur intégré.
+La vidéo de démonstration se trouve dans le dépôt : [`video/Video_Prog_WhoIsMudry.mp4`](./video/Video_Prog_WhoIsMudry.mp4).
 
 ---
 
